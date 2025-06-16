@@ -19,7 +19,7 @@ const studentSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  class: {
+  division: {
     type: String,
     required: true,
   },
@@ -69,6 +69,11 @@ const studentSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  role:{
+    type:String,
+    enum :["Student","Institute"],
+    default: "Student"
+  }
 });
 
 studentSchema.pre("save", async function (next) {

@@ -3,6 +3,7 @@ const app = express();
 const dotenv = require("dotenv");
 const authRoute = require("./routes/authRoute");
 const cookieParser = require("cookie-parser");
+const studentRoute = require("./routes/studentRoute");
 dotenv.config();
 
 app.use(express.json());
@@ -14,4 +15,5 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1", authRoute);
+app.use("/api/v1", studentRoute);
 module.exports = app;
