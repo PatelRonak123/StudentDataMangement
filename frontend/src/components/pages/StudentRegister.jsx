@@ -38,7 +38,9 @@ import {
 import { format } from "date-fns";
 import axios from "axios";
 import toast from "react-hot-toast";
-export default function Component() {
+import { useNavigate } from "react-router-dom";
+export default function StudnetRegister() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     age: "",
@@ -162,72 +164,71 @@ export default function Component() {
     return Object.keys(newErrors).length === 0;
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validateForm()) return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
-  try {
-    const loadingToast = toast.loading("Registering...");
+    try {
+      const loadingToast = toast.loading("Registering...");
 
-    const formDataToSend = new FormData();
-    formDataToSend.append("fullName", formData.fullName);
-    formDataToSend.append("age", formData.age);
-    formDataToSend.append("gender", formData.gender);
-    formDataToSend.append("dateOfBirth", formData.dateOfBirth);
-    formDataToSend.append("contact[email]", formData.contact.email);
-    formDataToSend.append("contact[phone]", formData.contact.phone);
-    formDataToSend.append("address[street]", formData.address.street);
-    formDataToSend.append("address[city]", formData.address.city);
-    formDataToSend.append("address[state]", formData.address.state);
-    formDataToSend.append("address[pinCode]", formData.address.pinCode);
-    formDataToSend.append("password", formData.password);
-    formDataToSend.append("confirmPassword", formData.confirmPassword);
+      const formDataToSend = new FormData();
+      formDataToSend.append("fullName", formData.fullName);
+      formDataToSend.append("age", formData.age);
+      formDataToSend.append("gender", formData.gender);
+      formDataToSend.append("dateOfBirth", formData.dateOfBirth);
+      formDataToSend.append("contact[email]", formData.contact.email);
+      formDataToSend.append("contact[phone]", formData.contact.phone);
+      formDataToSend.append("address[street]", formData.address.street);
+      formDataToSend.append("address[city]", formData.address.city);
+      formDataToSend.append("address[state]", formData.address.state);
+      formDataToSend.append("address[pinCode]", formData.address.pinCode);
+      formDataToSend.append("password", formData.password);
+      formDataToSend.append("confirmPassword", formData.confirmPassword);
 
-    if (formData.profileImage) {
-      formDataToSend.append("profileImage", formData.profileImage);
-    }
-
-    const response = await axios.post(
-      "http://localhost:3000/api/v1/student-register",
-      formDataToSend,
-      {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
+      if (formData.profileImage) {
+        formDataToSend.append("profileImage", formData.profileImage);
       }
-    );
 
-    toast.dismiss(loadingToast);
+      const response = await axios.post(
+        "http://localhost:3000/api/v1/student-register",
+        formDataToSend,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
-    if (response.status === 201 || response.status === 200) {
-      toast.success("🎉 Registration successful!");
-      console.log("Form submitted successfully ✅", response.data);
-      setFormData({
-        fullName: "",
-        age: "",
-        gender: "",
-        dateOfBirth: "",
-        address: {
-          street: "",
-          city: "",
-          state: "",
-          pinCode: "",
-        },
-        contact: {
-          phone: "",
-          email: "",
-        },
-        password: "",
-        confirmPassword: "",
-        profileImage: null,
-      });
+      toast.dismiss(loadingToast);
+
+      if (response.status === 201 || response.status === 200) {
+        toast.success("🎉 Registration successful!");
+        console.log("Form submitted successfully ✅", response.data);
+        setFormData({
+          fullName: "",
+          age: "",
+          gender: "",
+          dateOfBirth: "",
+          address: {
+            street: "",
+            city: "",
+            state: "",
+            pinCode: "",
+          },
+          contact: {
+            phone: "",
+            email: "",
+          },
+          password: "",
+          confirmPassword: "",
+          profileImage: null,
+        });
+      }
+    } catch (err) {
+      toast.dismiss();
+      toast.error(err.response?.data?.message || "Registration failed");
+      console.error("Registration error:", err.response?.data || err.message);
     }
-  } catch (err) {
-    toast.dismiss();
-    toast.error(err.response?.data?.message || "Registration failed");
-    console.error("Registration error:", err.response?.data || err.message);
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-6 px-4 sm:px-6 lg:px-8">
@@ -794,6 +795,7 @@ export default function Component() {
               <div className="space-y-4">
                 <Button
                   type="submit"
+                  onClick={() => navigate("/")}
                   className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01] h-11 text-sm"
                 >
                   <GraduationCap className="w-4 h-4 mr-2" />

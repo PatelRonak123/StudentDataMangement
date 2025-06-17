@@ -58,15 +58,23 @@ const Register = async (req, res) => {
 const Login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const student = await studentModel.findOne({ email });
+    const contact = {
+      email,
+      password,
+    };
+    const student = await studentModel.findOne({
+      "contact.email": contact.email,
+    });
     if (!student) {
       return res.status(401).json({
         status: "Failed",
-        message: "Failed to Login",
+        message: "Student Not found",
       });
     }
-
-    const isMatched = await bcrypt.compare(password, student.password);
+    const isMatched = await bcrypt.compare(
+      contact.password,
+      student.confirmPassword
+    );
     if (!isMatched) {
       return res.status(401).json({
         status: "Failed",
