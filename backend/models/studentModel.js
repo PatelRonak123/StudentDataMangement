@@ -1,14 +1,17 @@
 const mongoose = require("mongoose");
-
+const bcrypt = require("bcrypt");
 const studentSchema = new mongoose.Schema({
-  name: {
-    first: { type: String, required: true },
-    last: { type: String, required: true },
+  fullName: {
+    type: String,
+    required: true,
+    minlength: [3, "Name must be at least 3 characters"],
+    maxlength: [30, "Name must be at most 30 characters"],
+    trim: true,
   },
   age: {
     type: Number,
     required: true,
-    min: 3,
+    min: 8,
   },
   gender: {
     type: String,
@@ -21,12 +24,9 @@ const studentSchema = new mongoose.Schema({
   },
   division: {
     type: String,
-    required: true,
   },
   rollNumber: {
     type: String,
-    required: true,
-    unique: true,
   },
   address: {
     street: String,
@@ -40,10 +40,17 @@ const studentSchema = new mongoose.Schema({
     minlength: [6, "Password must be at least 6 characters"],
     maxlength: [20, "Password must be at most 20 characters"],
   },
+  confirmPassword: {
+    type: String,
+    required: true,
+    minlength: [6, "Password must be at least 6 characters"],
+    maxlength: [20, "Password must be at most 20 characters"],
+  },
   contact: {
     phone: {
       type: String,
       required: true,
+      unique: true,
     },
     email: {
       type: String,
@@ -69,17 +76,17 @@ const studentSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
-  role:{
-    type:String,
-    enum :["Student","Institute"],
-    default: "Student"
-  }
+  role: {
+    type: String,
+    enum: ["Student", "Institute"],
+    default: "Student",
+  },
 });
 
 studentSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("confirmPassword")) return next();
   try {
-    this.password = await bcrypt.hash(this.password, 10);
+    this.confirmPassword = await bcrypt.hash(this.confirmPassword, 10);
     next();
   } catch (error) {
     next(error);

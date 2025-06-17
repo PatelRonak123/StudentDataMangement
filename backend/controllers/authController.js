@@ -4,43 +4,52 @@ const jwt = require("jsonwebtoken");
 const Register = async (req, res) => {
   try {
     const {
-      name,
+      fullName,
       age,
       gender,
-      dateofBirth,
-      address,
+      dateOfBirth,
       contact,
+      address,
       password,
-      profileImage,
+      confirmPassword,
     } = req.body;
 
-    const studenExits = await studentModel.find({ email }).select("-password");
+    const profileImage = req.file?.path || "";
+    const studenExits = await studentModel
+      .findOne({
+        $or: [
+          { "contact.email": contact.email },
+          { "contact.phone": contact.phone },
+        ],
+      })
+      .select("-password");
     if (studenExits) {
-      return response.status(401).josn({
-        stauts: "Failed ",
+      return res.status(401).json({
+        status: "Failed",
         message: "Student already Registerd",
       });
     }
 
     const studentRegister = await studentModel.create({
-      name,
+      fullName,
+      contact,
       age,
       gender,
-      dateofBirth,
+      dateOfBirth,
       address,
-      contact,
       password,
+      confirmPassword,
       profileImage,
     });
 
-    return response.status(201).json({
-      stauts: "Success",
-      message: "Stundent Registered Successfully",
+    return res.status(201).json({
+      status: "Success",
+      message: "Student Registered Successfully",
       studentRegister,
     });
   } catch (err) {
-    return response.status(401).json({
-      message: "Failed to Register",
+    return res.status(500).json({
+      status: "Failed",
       error: err.message,
     });
   }
@@ -49,17 +58,15 @@ const Register = async (req, res) => {
 const Login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const studentExists = await studentModel
-      .find({ email })
-      .select("-password");
-    if (!studentExists) {
-      return response.status(401).json({
-        stauts: "Failed",
+    const student = await studentModel.findOne({ email });
+    if (!student) {
+      return res.status(401).json({
+        status: "Failed",
         message: "Failed to Login",
       });
     }
 
-    const isMatched = await bcrypt.compare(password, studentRegister.password);
+    const isMatched = await bcrypt.compare(password, student.password);
     if (!isMatched) {
       return res.status(401).json({
         status: "Failed",
@@ -69,8 +76,8 @@ const Login = async (req, res) => {
 
     const token = jwt.sign(
       {
-        id: studentExists._id,
-        email: studentExists.email,
+        id: student._id,
+        email: student.email,
       },
       process.env.JWT_SECRET,
       {
@@ -86,10 +93,10 @@ const Login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return response.status(200).json({
+    return res.status(200).json({
       status: "Success",
       message: "Login Successfully",
-      studentExists,
+      student,
     });
   } catch (err) {
     return res.status(400).json({
