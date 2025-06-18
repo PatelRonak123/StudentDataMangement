@@ -51,11 +51,14 @@ const studentSchema = new mongoose.Schema({
       type: String,
       required: true,
       unique: true,
+      minlength: [10, "Phone number must be at least 10 digits"],
+      maxlength: [10, "Phone number must be at most 10 digits"],
     },
     email: {
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
   },
   marks: [
@@ -75,11 +78,6 @@ const studentSchema = new mongoose.Schema({
   profileImage: {
     type: String,
     default: "",
-  },
-  role: {
-    type: String,
-    enum: ["Student", "Institute"],
-    default: "Student",
   },
 });
 

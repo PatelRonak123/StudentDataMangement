@@ -1,6 +1,8 @@
 const studentModel = require("../models/studentModel");
+const instituteModel = require("../models/instituteModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
 const Register = async (req, res) => {
   try {
     const {
@@ -86,6 +88,7 @@ const Login = async (req, res) => {
       {
         id: student._id,
         email: student.email,
+        role: "Student",
       },
       process.env.JWT_SECRET,
       {
@@ -105,6 +108,7 @@ const Login = async (req, res) => {
       status: "Success",
       message: "Login Successfully",
       student,
+      role: "Student",
     });
   } catch (err) {
     return res.status(400).json({
@@ -113,7 +117,7 @@ const Login = async (req, res) => {
   }
 };
 
-const Logout = async (req, res) => {
+const Logout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     sameSite: "None",
@@ -126,4 +130,152 @@ const Logout = async (req, res) => {
   });
 };
 
-module.exports = { Register, Login, Logout };
+const instituteRegistration = async (req, res) => {
+  try {
+    const {
+      instituteName,
+      establishmentYear,
+      instituteType,
+      registrationDate,
+      department,
+      registrationNumber,
+      contact,
+      password,
+      confirmPassword,
+      instituteCode,
+    } = req.body;
+
+    const instituteLogo = req.file?.path || "";
+
+    if (instituteCode !== process.env.VALID_INSTITUTE_CODE) {
+      return res.status(401).json({
+        status: "Faild",
+        message: "Invalid Institute Code",
+      });
+    }
+
+    const instituteExists = await instituteModel
+      .findOne({
+        $or: [
+          { "contact.email": contact.email },
+          { "contact.phone": contact.phone },
+        ],
+      })
+      .select("-password");
+
+    if (instituteExists) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Institute already Registered",
+      });
+    }
+
+    const instituteRegister = await instituteModel.create({
+      instituteName,
+      establishmentYear,
+      instituteType,
+      registrationDate,
+      department,
+      registrationNumber,
+      contact,
+      password,
+      instituteCode,
+      role: "Institute",
+      confirmPassword,
+      instituteLogo,
+    });
+
+    return res.status(201).json({
+      status: "Success",
+      message: "Instiute Registered Successfully",
+      instituteRegister,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: "Failed",
+      error: err.message,
+    });
+  }
+};
+
+const instituteLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const contact = {
+      email,
+      password,
+    };
+
+    const institute = await instituteModel.findOne({
+      "contact.email": contact.email,
+    });
+
+    if (!institute) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Institute Not Found",
+      });
+    }
+
+    const isMatched = await bcrypt.compare(password, institute.confirmPassword);
+    if (!isMatched) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Failed to Login",
+      });
+    }
+
+    const instituteToken = jwt.sign(
+      {
+        id: institute._id,
+        email: institute.contact.email,
+        role: institute.role || "Institute",
+      },
+      process.env.INSTITUTE_SECRET,
+      {
+        expiresIn: "30d",
+      }
+    );
+
+    res.cookie("instituteToken", instituteToken, {
+      httpOnly: true,
+      secure: true, // make false for local dev if needed
+      sameSite: "None", // or "Lax" for local
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      status: "Success",
+      message: "Institute Login Successfully",
+      institute,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "Failed",
+      message: err.message,
+    });
+  }
+};
+
+const instituteLogout = (req, res) => {
+  res.clearCookie("instituteToken", {
+    httpOnly: true,
+    sameSite: "None",
+    secure: true,
+  });
+
+  return res.status(200).json({
+    status: "Success",
+    message: "Institute Logout Successfully",
+  });
+};
+
+module.exports = {
+  Register,
+  Login,
+  Logout,
+  instituteRegistration,
+  instituteLogin,
+  instituteLogout,
+};

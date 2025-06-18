@@ -23,10 +23,9 @@ import { Separator } from "@/components/ui/separator";
 import {
   CalendarIcon,
   Upload,
-  User,
+  Building2,
   Phone,
   Lock,
-  MapPin,
   Mail,
   Eye,
   EyeOff,
@@ -34,29 +33,27 @@ import {
   AlertCircle,
   GraduationCap,
   Hash,
+  School,
 } from "lucide-react";
 import { format } from "date-fns";
 import axios from "axios";
 import toast from "react-hot-toast";
-export default function StudnetRegister() {
+export default function InstituteRegister() {
   const [formData, setFormData] = useState({
-    fullName: "",
-    age: "",
-    gender: "",
-    dateOfBirth: null,
-    address: {
-      street: "",
-      city: "",
-      state: "",
-      pinCode: "",
-    },
+    instituteName: "",
+    establishmentYear: "",
+    instituteType: "",
+    registrationDate: null,
+    department: "",
+    registrationNumber: "",
+    instituteCode: "",
     contact: {
       phone: "",
       email: "",
     },
     password: "",
     confirmPassword: "",
-    profileImage: null,
+    instituteLogo: null,
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -94,57 +91,89 @@ export default function StudnetRegister() {
     if (file && file.size > 5 * 1024 * 1024) {
       setErrors({
         ...errors,
-        profileImage: "File size should be less than 5MB",
+        instituteLogo: "File size should be less than 5MB",
       });
       return;
     }
     setFormData({
       ...formData,
-      profileImage: file,
+      instituteLogo: file,
     });
     setErrors({
       ...errors,
-      profileImage: "",
+      instituteLogo: "",
     });
   };
 
   const validateForm = () => {
     const newErrors = {};
+   
+    // Full Name validation
+    if (!formData.instituteName.trim()) {
+      newErrors.instituteName = "Institute name is required";
+    } else if (formData.instituteName.trim().length < 3) {
+      newErrors.instituteName = "Institute name must be at least 3 characters";
+    } else if (formData.instituteName.trim().length > 60) {
+      newErrors.instituteName = "Institute name must be at most 60 characters";
+    }
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
-    } else if (formData.fullName.trim().length < 3) {
-      newErrors.fullName = "Name must be at least 3 characters";
-    } else if (formData.fullName.trim().length > 30) {
-      newErrors.fullName = "Name must be at most 30 characters";
+    // establishmentYear validation
+    if (!formData.establishmentYear || formData.establishmentYear < 3) {
+      newErrors.establishmentYear = "establishmentYear must be at least 3";
     }
-    if (!formData.age || formData.age < 8) {
-      newErrors.age = "Age must be at least 8";
+
+    // instituteType validation
+    if (!formData.instituteType)
+      newErrors.instituteType = "Please select instituteType";
+    if (!formData.registrationDate)
+      newErrors.registrationDate = "Date of birth is required";
+
+    // Institute Code validation
+    if (!formData.instituteCode.trim()) {
+      newErrors.instituteCode = "Institute code is required";
+    } else if (formData.instituteCode.trim().length < 3) {
+      newErrors.instituteCode = "Institute code must be at least 3 characters";
+    } else if (formData.instituteCode.trim().length > 10) {
+      newErrors.instituteCode = "Institute code must be at most 10 characters";
     }
-    if (!formData.gender) newErrors.gender = "Please select gender";
-    if (!formData.dateOfBirth)
-      newErrors.dateOfBirth = "Date of birth is required";
-    if (!formData.address.street.trim())
-      newErrors["address.street"] = "Street is required";
-    if (!formData.address.city.trim())
-      newErrors["address.city"] = "City is required";
-    if (!formData.address.state.trim())
-      newErrors["address.state"] = "State is required";
-    if (!formData.address.pinCode.trim()) {
-      newErrors["address.pinCode"] = "Pin code is required";
-    } else if (!/^\d{6}$/.test(formData.address.pinCode)) {
-      newErrors["address.pinCode"] = "Pin code must be 6 digits";
+
+    if (formData.department.trim() && formData.department.trim().length < 3) {
+      newErrors.department = "department must be at least 3 characters";
+    } else if (formData.department.trim().length > 50) {
+      newErrors.department = "department must be at most 50 characters";
     }
+
+    if (
+      formData.registrationNumber.trim() &&
+      formData.registrationNumber.trim().length < 3
+    ) {
+      newErrors.registrationNumber =
+        "Registration number must be at least 3 characters";
+    } else if (formData.registrationNumber.trim().length > 15) {
+      newErrors.registrationNumber =
+        "Registration number must be at most 15 characters";
+    } else if (
+      formData.registrationNumber.trim() &&
+      !/^[A-Za-z0-9]+$/.test(formData.registrationNumber.trim())
+    ) {
+      newErrors.registrationNumber =
+        "Registration number can only contain letters and numbers";
+    }
+
+    // Contact validation
     if (!formData.contact.phone.trim()) {
       newErrors["contact.phone"] = "Phone number is required";
     } else if (!/^\d{10}$/.test(formData.contact.phone.replace(/\D/g, ""))) {
       newErrors["contact.phone"] = "Phone number must be 10 digits";
     }
+
     if (!formData.contact.email.trim()) {
       newErrors["contact.email"] = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.contact.email)) {
       newErrors["contact.email"] = "Valid email is required";
     }
+
+    // Password validation
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
 
@@ -180,60 +209,54 @@ export default function StudnetRegister() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
     try {
       const loadingToast = toast.loading("Registering...");
-
+      // Prepare data for submission (matching schema structure)
       const formDataToSend = new FormData();
-      formDataToSend.append("fullName", formData.fullName);
-      formDataToSend.append("age", formData.age);
-      formDataToSend.append("gender", formData.gender);
-      formDataToSend.append("dateOfBirth", formData.dateOfBirth);
-      formDataToSend.append("contact[email]", formData.contact.email);
+      formDataToSend.append("instituteName", formData.instituteName);
+      formDataToSend.append("establishmentYear", formData.establishmentYear);
+      formDataToSend.append("instituteType", formData.instituteType);
+      formDataToSend.append("registrationDate", formData.registrationDate);
+      formDataToSend.append("department", formData.department);
+      formDataToSend.append("registrationNumber", formData.registrationNumber);
+      formDataToSend.append("instituteCode", formData.instituteCode);
       formDataToSend.append("contact[phone]", formData.contact.phone);
-      formDataToSend.append("address[street]", formData.address.street);
-      formDataToSend.append("address[city]", formData.address.city);
-      formDataToSend.append("address[state]", formData.address.state);
-      formDataToSend.append("address[pinCode]", formData.address.pinCode);
+      formDataToSend.append("contact[email]", formData.contact.email);
       formDataToSend.append("password", formData.password);
       formDataToSend.append("confirmPassword", formData.confirmPassword);
 
-      if (formData.profileImage) {
-        formDataToSend.append("profileImage", formData.profileImage);
+      if (formData.instituteLogo) {
+        formDataToSend.append("instituteLogo", formData.instituteLogo);
       }
-
+      // Handle form submission here
       const response = await axios.post(
-        "http://localhost:3000/api/v1/student-register",
+        "http://localhost:3000/api/v1/institute-register",
         formDataToSend,
         {
           withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
-
       toast.dismiss(loadingToast);
-
       if (response.status === 201 || response.status === 200) {
-        toast.success("🎉 Registration successful!");
-        console.log("Form submitted successfully ✅", response.data);
+        toast.success("Institute registered successfully!");
         setFormData({
-          fullName: "",
-          age: "",
-          gender: "",
-          dateOfBirth: "",
-          address: {
-            street: "",
-            city: "",
-            state: "",
-            pinCode: "",
-          },
+          instituteName: "",
+          establishmentYear: "",
+          instituteType: "",
+          registrationDate: null,
+          department: "",
+          registrationNumber: "",
+          instituteCode: "",
           contact: {
             phone: "",
             email: "",
           },
           password: "",
           confirmPassword: "",
-          profileImage: null,
+          instituteLogo: null,
         });
       }
     } catch (err) {
@@ -244,33 +267,33 @@ export default function StudnetRegister() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-6 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-100 py-6 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full shadow-lg mb-4">
-            <GraduationCap className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full shadow-lg mb-4">
+            <School className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent mb-3">
-            Student Registration
+          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent mb-3">
+            Institute Registration
           </h1>
           <p className="text-base text-gray-600 max-w-2xl mx-auto mb-4">
-            Join our academic community and unlock your potential. Create your
-            student account to access courses, resources, and connect with
-            peers.
+            Register your educational institute to manestablishmentYear
+            students, courses, and academic resources. Join our platform to
+            streamline your educational operations.
           </p>
           <Badge
             variant="secondary"
-            className="bg-blue-100 text-blue-700 px-3 py-1 text-sm"
+            className="bg-green-100 text-green-700 px-3 py-1 text-sm"
           >
             <CheckCircle className="w-3 h-3 mr-1" />
-            Secure & Verified
+            Trusted & Secure
           </Badge>
         </div>
 
         {/* Main Form */}
         <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-md overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 h-1"></div>
+          <div className="bg-gradient-to-r from-green-600 to-emerald-600 h-1"></div>
 
           <CardContent className="p-6 lg:p-8">
             <form
@@ -282,27 +305,27 @@ export default function StudnetRegister() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                 <div className="lg:col-span-1 text-center lg:text-left">
                   <h2 className="text-lg font-semibold text-gray-800 flex items-center justify-center lg:justify-start gap-2 mb-3">
-                    <User className="w-5 h-5 text-blue-600" />
-                    Profile Information
+                    <Building2 className="w-5 h-5 text-green-600" />
+                    Institute Information
                   </h2>
                   <p className="text-sm text-gray-600 mb-4">
-                    Upload your profile picture and basic information
+                    Upload institute logo and basic information
                   </p>
 
                   <div className="flex flex-col items-center space-y-3">
                     <div className="relative group">
-                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 border-3 border-white shadow-lg flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:shadow-xl">
-                        {formData.profileImage ? (
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 border-3 border-white shadow-lg flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:shadow-xl">
+                        {formData.instituteLogo ? (
                           <img
                             src={
-                              URL.createObjectURL(formData.profileImage) ||
+                              URL.createObjectURL(formData.instituteLogo) ||
                               "/placeholder.svg"
                             }
-                            alt="Profile preview"
+                            alt="Institute logo preview"
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <Upload className="w-8 h-8 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                          <Upload className="w-8 h-8 text-gray-400 group-hover:text-green-500 transition-colors" />
                         )}
                       </div>
                       <div className="absolute inset-0 rounded-full bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -312,23 +335,23 @@ export default function StudnetRegister() {
 
                     <div className="w-full max-w-sm">
                       <Label
-                        htmlFor="profileImage"
+                        htmlFor="instituteLogo"
                         className="text-xs font-medium text-gray-700 mb-1 block"
                       >
-                        Profile Picture (Optional)
+                        Institute Logo (Optional)
                       </Label>
                       <Input
-                        id="profileImage"
+                        id="instituteLogo"
                         type="file"
-                        name="profileImage"
+                        name="instituteLogo"
                         accept="image/*"
                         onChange={handleFileChange}
-                        className="cursor-pointer text-xs file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        className="cursor-pointer text-xs file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
                       />
-                      {errors.profileImage && (
+                      {errors.instituteLogo && (
                         <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
-                          {errors.profileImage}
+                          {errors.instituteLogo}
                         </p>
                       )}
                       <p className="text-xs text-gray-500 mt-1">
@@ -342,118 +365,123 @@ export default function StudnetRegister() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <Label
-                        htmlFor="fullName"
+                        htmlFor="instituteName"
                         className="text-xs font-medium text-gray-700"
                       >
-                        Full Name *
+                        Institute Name *
                       </Label>
                       <div className="relative">
-                        <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                        <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                         <Input
-                          id="fullName"
+                          id="instituteName"
                           type="text"
-                          name="fullName"
-                          placeholder="Enter your full name"
-                          value={formData.fullName}
+                          name="instituteName"
+                          placeholder="Enter institute name"
+                          value={formData.instituteName}
                           onChange={(e) =>
-                            handleChange("fullName", e.target.value)
+                            handleChange("instituteName", e.target.value)
                           }
                           className={`pl-9 h-10 text-sm ${
-                            errors.fullName
+                            errors.instituteName
                               ? "border-red-500 focus:border-red-500"
-                              : "focus:border-blue-500"
+                              : "focus:border-green-500"
                           }`}
                         />
                       </div>
-                      {errors.fullName && (
+                      {errors.instituteName && (
                         <p className="text-red-500 text-xs flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
-                          {errors.fullName}
+                          {errors.instituteName}
                         </p>
                       )}
                     </div>
 
                     <div className="space-y-1">
                       <Label
-                        htmlFor="age"
+                        htmlFor="establishmentYear"
                         className="text-xs font-medium text-gray-700"
                       >
-                        Age *
+                        Establishment Year *
                       </Label>
                       <Input
-                        id="age"
+                        id="establishmentYear"
                         type="number"
-                        name="age"
-                        placeholder="Enter your age"
-                        value={formData.age}
-                        onChange={(e) => handleChange("age", e.target.value)}
-                        min="3"
+                        name="establishmentYear"
+                        placeholder="Enter establishment year"
+                        value={formData.establishmentYear}
+                        onChange={(e) =>
+                          handleChange("establishmentYear", e.target.value)
+                        }
+                        min="1800"
+                        max={new Date().getFullYear()}
                         className={`h-10 text-sm ${
-                          errors.age
+                          errors.establishmentYear
                             ? "border-red-500 focus:border-red-500"
-                            : "focus:border-blue-500"
+                            : "focus:border-green-500"
                         }`}
                       />
-                      {errors.age && (
+                      {errors.establishmentYear && (
                         <p className="text-red-500 text-xs flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
-                          {errors.age}
+                          {errors.establishmentYear}
                         </p>
                       )}
                     </div>
 
                     <div className="space-y-1">
                       <Label className="text-xs font-medium text-gray-700">
-                        Gender *
+                        Institute Type *
                       </Label>
                       <Select
-                        onValueChange={(value) => handleChange("gender", value)}
+                        onValueChange={(value) =>
+                          handleChange("instituteType", value)
+                        }
                       >
                         <SelectTrigger
                           className={`h-10 text-sm ${
-                            errors.gender ? "border-red-500" : ""
+                            errors.instituteType ? "border-red-500" : ""
                           }`}
                         >
-                          <SelectValue placeholder="Select your gender" />
+                          <SelectValue placeholder="Select institute type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Male" name="Male">
-                            Male
+                          <SelectItem value="School" name="School">
+                            School
                           </SelectItem>
-                          <SelectItem value="Female" name="Female">
-                            Female
+                          <SelectItem value="College" name="College">
+                            College
                           </SelectItem>
-                          <SelectItem value="Other" name="Other">
-                            Other
+                          <SelectItem value="University" name="University">
+                            University
                           </SelectItem>
                         </SelectContent>
                       </Select>
-                      {errors.gender && (
+                      {errors.instituteType && (
                         <p className="text-red-500 text-xs flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
-                          {errors.gender}
+                          {errors.instituteType}
                         </p>
                       )}
                     </div>
 
                     <div className="space-y-1">
                       <Label className="text-xs font-medium text-gray-700">
-                        Date of Birth *
+                        Registration Date *
                       </Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
                             className={`w-full h-10 justify-start text-left font-normal text-sm ${
-                              errors.dateOfBirth ? "border-red-500" : ""
+                              errors.registrationDate ? "border-red-500" : ""
                             }`}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.dateOfBirth ? (
-                              format(formData.dateOfBirth, "PPP")
+                            {formData.registrationDate ? (
+                              format(formData.registrationDate, "PPP")
                             ) : (
                               <span className="text-gray-500">
-                                Select your birth date
+                                Select registration date
                               </span>
                             )}
                           </Button>
@@ -461,160 +489,107 @@ export default function StudnetRegister() {
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            name="dateOfBirth"
-                            selected={formData.dateOfBirth}
+                            name="registrationDate"
+                            selected={formData.registrationDate}
                             onSelect={(date) =>
-                              handleChange("dateOfBirth", date)
+                              handleChange("registrationDate", date)
                             }
                             disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
+                              date > new Date() || date < new Date("1800-01-01")
                             }
                             initialFocus
                           />
                         </PopoverContent>
                       </Popover>
-                      {errors.dateOfBirth && (
+                      {errors.registrationDate && (
                         <p className="text-red-500 text-xs flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
-                          {errors.dateOfBirth}
+                          {errors.registrationDate}
                         </p>
                       )}
                     </div>
-                  </div>
-                </div>
-              </div>
 
-              <Separator />
-
-              {/* Address Section */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-blue-600" />
-                  Address Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <Label
-                      htmlFor="street"
-                      className="text-xs font-medium text-gray-700"
-                    >
-                      Street Address *
-                    </Label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="street"
-                        type="text"
-                        name="street"
-                        placeholder="Enter street address"
-                        value={formData.address.street}
-                        onChange={(e) =>
-                          handleChange("address.street", e.target.value)
-                        }
-                        className={`pl-9 h-10 text-sm ${
-                          errors["address.street"]
-                            ? "border-red-500 focus:border-red-500"
-                            : "focus:border-blue-500"
-                        }`}
-                      />
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor="instituteCode"
+                        className="text-xs font-medium text-gray-700"
+                      >
+                        Institute Code *
+                      </Label>
+                      <div className="relative">
+                        <Hash className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="instituteCode"
+                          type="text"
+                          name="instituteCode"
+                          placeholder="Enter unique institute code"
+                          value={formData.instituteCode}
+                          onChange={(e) =>
+                            handleChange("instituteCode", e.target.value)
+                          }
+                          className={`pl-9 h-10 text-sm ${
+                            errors.instituteCode
+                              ? "border-red-500 focus:border-red-500"
+                              : "focus:border-green-500"
+                          }`}
+                        />
+                      </div>
+                      {errors.instituteCode && (
+                        <p className="text-red-500 text-xs flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" />
+                          {errors.instituteCode}
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        3-10 characters, must be unique
+                      </p>
                     </div>
-                    {errors["address.street"] && (
-                      <p className="text-red-500 text-xs flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        {errors["address.street"]}
-                      </p>
-                    )}
-                  </div>
 
-                  <div className="space-y-1">
-                    <Label
-                      htmlFor="city"
-                      className="text-xs font-medium text-gray-700"
-                    >
-                      City *
-                    </Label>
-                    <Input
-                      id="city"
-                      type="text"
-                      name="city"
-                      placeholder="Enter city"
-                      value={formData.address.city}
-                      onChange={(e) =>
-                        handleChange("address.city", e.target.value)
-                      }
-                      className={`h-10 text-sm ${
-                        errors["address.city"]
-                          ? "border-red-500 focus:border-red-500"
-                          : "focus:border-blue-500"
-                      }`}
-                    />
-                    {errors["address.city"] && (
-                      <p className="text-red-500 text-xs flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        {errors["address.city"]}
-                      </p>
-                    )}
-                  </div>
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor="department"
+                        className="text-xs font-medium text-gray-700"
+                      >
+                        Department/Branch (Optional)
+                      </Label>
+                      <div className="relative">
+                        <GraduationCap className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="department"
+                          type="text"
+                          name="department"
+                          placeholder="e.g., Science, Commerce, Arts"
+                          value={formData.department}
+                          onChange={(e) =>
+                            handleChange("department", e.target.value)
+                          }
+                          className="pl-9 h-10 text-sm focus:border-green-500"
+                        />
+                      </div>
+                    </div>
 
-                  <div className="space-y-1">
-                    <Label
-                      htmlFor="state"
-                      className="text-xs font-medium text-gray-700"
-                    >
-                      State *
-                    </Label>
-                    <Input
-                      id="state"
-                      type="text"
-                      name="state"
-                      placeholder="Enter state"
-                      value={formData.address.state}
-                      onChange={(e) =>
-                        handleChange("address.state", e.target.value)
-                      }
-                      className={`h-10 text-sm ${
-                        errors["address.state"]
-                          ? "border-red-500 focus:border-red-500"
-                          : "focus:border-blue-500"
-                      }`}
-                    />
-                    {errors["address.state"] && (
-                      <p className="text-red-500 text-xs flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        {errors["address.state"]}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-1">
-                    <Label
-                      htmlFor="pinCode"
-                      className="text-xs font-medium text-gray-700"
-                    >
-                      Pin Code *
-                    </Label>
-                    <Input
-                      id="pinCode"
-                      type="text"
-                      name="pinCode"
-                      placeholder="Enter 6-digit pin code"
-                      value={formData.address.pinCode}
-                      onChange={(e) =>
-                        handleChange("address.pinCode", e.target.value)
-                      }
-                      maxLength={6}
-                      className={`h-10 text-sm ${
-                        errors["address.pinCode"]
-                          ? "border-red-500 focus:border-red-500"
-                          : "focus:border-blue-500"
-                      }`}
-                    />
-                    {errors["address.pinCode"] && (
-                      <p className="text-red-500 text-xs flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        {errors["address.pinCode"]}
-                      </p>
-                    )}
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor="registrationNumber"
+                        className="text-xs font-medium text-gray-700"
+                      >
+                        Registration Number (Optional)
+                      </Label>
+                      <div className="relative">
+                        <Hash className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="registrationNumber"
+                          name="registrationNumber"
+                          type="text"
+                          placeholder="Enter registration number"
+                          value={formData.registrationNumber}
+                          onChange={(e) =>
+                            handleChange("registrationNumber", e.target.value)
+                          }
+                          className="pl-9 h-10 text-sm focus:border-green-500"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -624,7 +599,7 @@ export default function StudnetRegister() {
               {/* Contact Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-blue-600" />
+                  <Phone className="w-4 h-4 text-green-600" />
                   Contact Information
                 </h3>
 
@@ -650,7 +625,7 @@ export default function StudnetRegister() {
                         className={`pl-9 h-10 text-sm ${
                           errors["contact.phone"]
                             ? "border-red-500 focus:border-red-500"
-                            : "focus:border-blue-500"
+                            : "focus:border-green-500"
                         }`}
                       />
                     </div>
@@ -675,7 +650,7 @@ export default function StudnetRegister() {
                         id="email"
                         type="email"
                         name="email"
-                        placeholder="Enter your email address"
+                        placeholder="Enter institute email address"
                         value={formData.contact.email}
                         onChange={(e) =>
                           handleChange("contact.email", e.target.value)
@@ -683,7 +658,7 @@ export default function StudnetRegister() {
                         className={`pl-9 h-10 text-sm ${
                           errors["contact.email"]
                             ? "border-red-500 focus:border-red-500"
-                            : "focus:border-blue-500"
+                            : "focus:border-green-500"
                         }`}
                       />
                     </div>
@@ -702,7 +677,7 @@ export default function StudnetRegister() {
               {/* Security Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-blue-600" />
+                  <Lock className="w-4 h-4 text-green-600" />
                   Account Security
                 </h3>
 
@@ -728,7 +703,7 @@ export default function StudnetRegister() {
                         className={`pl-9 pr-9 h-10 text-sm ${
                           errors.password
                             ? "border-red-500 focus:border-red-500"
-                            : "focus:border-blue-500"
+                            : "focus:border-green-500"
                         }`}
                       />
                       <button
@@ -775,7 +750,7 @@ export default function StudnetRegister() {
                         className={`pl-9 pr-9 h-10 text-sm ${
                           errors.confirmPassword
                             ? "border-red-500 focus:border-red-500"
-                            : "focus:border-blue-500"
+                            : "focus:border-green-500"
                         }`}
                       />
                       <button
@@ -808,25 +783,25 @@ export default function StudnetRegister() {
               <div className="space-y-4">
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01] h-11 text-sm"
+                  className="w-full bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.01] h-11 text-sm"
                 >
-                  <GraduationCap className="w-4 h-4 mr-2" />
-                  Create Student Account
+                  <School className="w-4 h-4 mr-2" />
+                  Register Institute
                 </Button>
 
                 <div className="text-center text-xs text-gray-600 space-y-2">
                   <p>
-                    By creating an account, you agree to our{" "}
+                    By registering your institute, you agree to our{" "}
                     <a
                       href="#"
-                      className="text-blue-600 hover:text-blue-700 font-medium underline underline-offset-2"
+                      className="text-green-600 hover:text-green-700 font-medium underline underline-offset-2"
                     >
                       Terms of Service
                     </a>{" "}
                     and{" "}
                     <a
                       href="#"
-                      className="text-blue-600 hover:text-blue-700 font-medium underline underline-offset-2"
+                      className="text-green-600 hover:text-green-700 font-medium underline underline-offset-2"
                     >
                       Privacy Policy
                     </a>
@@ -835,7 +810,7 @@ export default function StudnetRegister() {
                     Already have an account?{" "}
                     <a
                       href="#"
-                      className="text-blue-600 hover:text-blue-700 font-medium"
+                      className="text-green-600 hover:text-green-700 font-medium"
                     >
                       Sign in here
                     </a>
@@ -849,8 +824,8 @@ export default function StudnetRegister() {
         {/* Footer */}
         <div className="text-center text-xs text-gray-500 mt-6">
           <p>
-            © 2024 Student Portal. All rights reserved. | Need help? Contact
-            support@studentportal.com
+            © 2024 Institute Portal. All rights reserved. | Need help? Contact
+            support@instituteportal.com
           </p>
         </div>
       </div>
