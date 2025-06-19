@@ -22,12 +22,6 @@ const studentSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  division: {
-    type: String,
-  },
-  rollNumber: {
-    type: String,
-  },
   address: {
     street: String,
     city: String,
@@ -61,16 +55,6 @@ const studentSchema = new mongoose.Schema({
       trim: true,
     },
   },
-  marks: [
-    {
-      subject: String,
-      score: Number,
-    },
-  ],
-  attendance: {
-    totalDays: { type: Number, default: 0 },
-    presentDays: { type: Number, default: 0 },
-  },
   enrolledDate: {
     type: Date,
     default: Date.now,
@@ -78,6 +62,21 @@ const studentSchema = new mongoose.Schema({
   profileImage: {
     type: String,
     default: "",
+  },
+  role: {
+    type: String,
+    enum: ["Student"],
+    default: "Student",
+  },
+  appliedInstitute: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Institute",
+    default: null,
+  },
+  applicationStatus: {
+    type: String,
+    enum: ["Pending", "Accepted", "Rejected"],
+    default: "Pending",
   },
 });
 

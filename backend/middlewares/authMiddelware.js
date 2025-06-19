@@ -4,17 +4,28 @@ const authMiddleware =
   (allowedRoles = []) =>
   (req, res, next) => {
     try {
-      const token = req.cookies.token || req.cookies.instituteToken;
-      if (!token) {
+      let token;
+      let secret;
+
+      if (req.cookies.token) {
+        token = req.cookies.token;
+        secret = process.env.JWT_SECRET;
+      } else if (req.cookies.instituteToken) {
+        token = req.cookies.instituteToken;
+        secret = process.env.INSTITUTE_SECRET;
+      } else if (req.cookies.adminToken) {
+        token = req.cookies.adminToken;
+        secret = process.env.ADMIN_SECRET;
+      }
+
+      if (!token || !secret) {
         return res.status(401).json({
-          staus: "Failed",
+          status: "Failed",
           message: "Unauthorized, Please Login First",
         });
       }
-      const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET || process.env.INSTITUTE_SECRET
-      );
+
+      const decoded = jwt.verify(token, secret);
 
       if (!allowedRoles.includes(decoded.role)) {
         return res.status(403).json({
@@ -23,6 +34,7 @@ const authMiddleware =
             "Forbidden, You don't have permission to access this resource",
         });
       }
+
       req.user = decoded;
       next();
     } catch (err) {

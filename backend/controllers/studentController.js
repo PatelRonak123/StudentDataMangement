@@ -1,137 +1,45 @@
-const studentModel = require("../models/studentModel");
+const applicationModel = require("../models/applicationModel");
 
-const studentData = async (req, res) => {
+const applyToInstitute = async (req, res) => {
   try {
-    const { name, age, division, marks, contact } = req.body;
-    const studentExists = await studentModel
-      .find({ email })
-      .select("-password");
-    if (studentExists) {
-      return res.status(401).json({
+    const { message, course, documents } = req.body;
+    const { InstituteId } = req.params;
+    if (req.user.role !== "Student") {
+      return res.status(403).json({
         status: "Failed",
-        message: "Student Already Registerd",
+        message: "Forbidden, You don't have permission to access this resource",
       });
     }
-    const addStudent = await studentModel.create({
-      name,
-      age,
-      division,
-      marks,
-      contact,
+
+    const applicationExists = await applicationModel.findOne({
+      student: req.user._id,
+    });
+    if (applicationExists) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "You have already applied to this institute",
+      });
+    }
+
+    const addApplication = await applicationModel.create({
+      student: req.user._id, // Assuming req.user._id is the student's ID
+      institute: InstituteId,
+      message,
+      course,
+      documents,
     });
 
-    return res.status(401).json({
+    return res.status(201).json({
       status: "Success",
-      message: "Student Registered Successfully",
-      addStudent,
+      message: "Application submitted successfully",
+      addApplication,
     });
   } catch (err) {
-    return res.status(401).json({
+    return res.status(500).json({
       status: "Failed",
       error: err.message,
     });
   }
 };
 
-const studentDetails = async (req, res) => {
-  try {
-    const fetchStudents = await studentModel
-      .find({ role: "Student" })
-      .select("-password");
-    if (!fetchStudents) {
-      return res.status(401).json({
-        status: "Failed",
-        message: "Failed to fetch Student Details",
-      });
-    }
-
-    return res.status(200).json({
-      status: "Success",
-      message: "Student Details fetched Successfully",
-      fetchStudents,
-    });
-  } catch (err) {
-    return res.status(401).json({
-      status: "Failed",
-      error: err.message,
-    });
-  }
-};
-
-const studentUpdate = async (req, res) => {
-  try {
-    const {
-      name,
-      age,
-      gender,
-      dateofBirth,
-      rollNumber,
-      marks,
-      contact,
-      division,
-      address,
-    } = req.body;
-
-    const studentFetched = await studentModel.findById(req.params.id);
-    if (!studentFetched) {
-      return res.status(404).json({
-        status: "Failed",
-        message: "Student not Found",
-      });
-    }
-    const editStudnent = await studentModel
-      .findByIdAndUpdate(req.params.id, {
-        name,
-        age,
-        gender,
-        dateofBirth,
-        rollNumber,
-        marks,
-        contact,
-        division,
-        address,
-      })
-      .select("-password");
-
-    return res.status(200).json({
-      status: "Success",
-      message: "Student Details Edit Successfully",
-      editStudnent,
-    });
-  } catch (err) {
-    return res.status(401).json({
-      status: "Failed",
-      error: err.message,
-    });
-  }
-};
-
-const studentDelete = async (req, res) => {
-  try {
-    const studentFetched = await userModel
-      .findById(req.params.id)
-      .select("-password");
-
-    if (!studentFetched) {
-      return res.status(404).json({
-        status: "fail",
-        message: "Student not found",
-      });
-    }
-    const deleteStudent = await userModel
-      .findByIdAndDelete(req.params.id)
-      .select("-password");
-
-    return res.status(200).json({
-      status: "success",
-      message: "Student  deleted successfully",
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "fail",
-      error: err.message,
-    });
-  }
-};
-
-module.exports = { studentData, studentDetails, studentUpdate, studentDelete };
+module.exports = { applyToInstitute };

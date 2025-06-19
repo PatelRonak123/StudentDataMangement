@@ -23,7 +23,7 @@ import {
 import { Link } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-
+import { useNavigate } from "react-router-dom";
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,7 +40,7 @@ const LoginPage = () => {
     password: false,
   });
   const [loginType, setLoginType] = useState("student"); // "student", "institute", or "admin"
-
+  const navigate = useNavigate();
   // Email validation function
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -168,6 +168,14 @@ const LoginPage = () => {
         email: "",
         password: "",
       });
+
+      if (loginType === "student") {
+        navigate("/student-dashboard");
+      } else if (loginType === "institute") {
+        navigate("/institute-dashboard");
+      } else {
+        navigate("/admin-dashboard");
+      }
 
       setIsLoading(false);
     } catch (error) {

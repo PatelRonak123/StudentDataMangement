@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
 const adminSchema = new mongoose.Schema({
   fullName: {
     type: String,
@@ -51,7 +51,12 @@ const adminSchema = new mongoose.Schema({
   },
   profileImage: {
     type: String,
-    default: ""
+    default: "",
+  },
+  role: {
+    type: String,
+    enum: ["Admin"],
+    default: "Admin",
   },
 });
 

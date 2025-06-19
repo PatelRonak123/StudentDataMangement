@@ -1,15 +1,12 @@
 const express = require("express");
-const {
-  studentData,
-  studentDetails,
-  studentUpdate,
-  studentDelete,
-} = require("../controllers/studentController");
+const authMiddleware = require("../middlewares/authMiddelware");
+const { applyToInstitute } = require("../controllers/studentController");
 const router = express.Router();
 
-router.post("/add-students", studentData);
-router.get("/fetch-students", studentDetails);
-router.put("/update-sudent/:id", studentUpdate);
-router.delete("/delete-sudent/:id", studentDelete);
+router.post(
+  "/apply/:InstituteId",
+  authMiddleware(["Student"]),
+  applyToInstitute
+);
 
 module.exports = router;

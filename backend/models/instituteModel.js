@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
-
 const institueSchema = new mongoose.Schema({
   instituteName: {
     type: String,
@@ -79,9 +78,15 @@ const institueSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["Student", "Institute", "Admin"],
-    default: "Student",
+    enum: ["Institute"],
+    default: "Institute",
   },
+  registeredStudents: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
 });
 
 institueSchema.pre("save", async function (next) {

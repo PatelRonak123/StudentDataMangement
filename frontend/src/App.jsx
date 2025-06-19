@@ -10,10 +10,11 @@ import StudentRegister from "./components/pages/StudentRegister";
 import HomePage from "./components/pages/HomePage";
 import Footer from "./components/layouts/Footer";
 import InstituteRegister from "./components/pages/InstituteRegister";
-import StudentDashboard from "./components/pages/StudentDashboard";
 import InstituteDashboard from "./components/pages/InstituteDashboard";
 import AdminRegistration from "./components/pages/AdminRegistration";
 import LoginPage from "./components/pages/LoginPage";
+import InstituteDetails from "./components/pages/InstituteDetails";
+import InstituteApplication from "./components/pages/InstituteApplication";
 
 const App = () => {
   return (
@@ -35,8 +36,12 @@ const MainApp = () => {
         <Route path="/student/register" element={<StudentRegister />} />
         <Route path="/institute/register" element={<InstituteRegister />} />
         <Route path="/admin/register" element={<AdminRegistration />} />
-        <Route path="/login" element={<LoginPage/>} />
-        <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/student-dashboard" element={<InstituteDetails />} />
+        <Route
+          path="/student-dashboard/apply-institute"
+          element={<InstituteApplication />}
+        />
         <Route path="/institute-dashboard" element={<InstituteDashboard />} />
       </Routes>
       {showFooter && <Footer />}
