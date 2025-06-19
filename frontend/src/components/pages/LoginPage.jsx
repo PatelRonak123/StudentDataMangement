@@ -18,14 +18,13 @@ import {
   AlertCircle,
   Building2,
   User,
+  Shield,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
-export default function LoginPage() {
-  const navigate = useNavigate();
-  const [loginType, setLoginType] = useState("student"); // or "institute"
+const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setformData] = useState({
@@ -40,6 +39,7 @@ export default function LoginPage() {
     email: false,
     password: false,
   });
+  const [loginType, setLoginType] = useState("student"); // "student", "institute", or "admin"
 
   // Email validation function
   const validateEmail = (email) => {
@@ -131,33 +131,51 @@ export default function LoginPage() {
       password: true,
     });
     if (!validateForm()) {
+      toast.error("Please fix the errors before submitting.");
       return;
     }
 
     setIsLoading(true);
-    const apiEndpoint =
-      loginType === "student"
-        ? "http://localhost:3000/api/v1/student-login"
-        : "http://localhost:3000/api/v1/institute-login";
+    let apiEndpoint;
 
-    const response = await axios.post(apiEndpoint, formData, {
-      withCredentials: true,
-      headers: { "Content-Type": "application/json" },
-    });
+    if (loginType === "student") {
+      apiEndpoint = "http://localhost:3000/api/v1/student-login";
+    } else if (loginType === "institute") {
+      apiEndpoint = "http://localhost:3000/api/v1/institute-login";
+    } else {
+      apiEndpoint = "http://localhost:3000/api/v1/admin-login";
+    }
 
-    if (response.status === 200) {
-      console.log("Login successfully", response.data);
-      setformData({
+    try {
+      const response = await axios.post(apiEndpoint, formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.status === 200) {
+        toast.success("Login successful!");
+        setformData({
+          email: "",
+          password: "",
+        });
+      }
+      // Reset touched and errors
+      setTouched({
+        email: false,
+        password: false,
+      });
+      setErrors({
         email: "",
         password: "",
       });
 
-      if (response.data?.student) {
-        navigate("/student-dashboard");
-      } else if (response.data?.institute) {
-        navigate("/institute-dashboard");
-      }
-
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.dismiss();
+      toast.error("Login failed. Please check your credentials and try again.");
+      setIsLoading(false);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -186,8 +204,10 @@ export default function LoginPage() {
             <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
               {loginType === "student" ? (
                 <GraduationCap className="h-8 w-8 text-blue-600" />
-              ) : (
+              ) : loginType === "institute" ? (
                 <Building2 className="h-8 w-8 text-blue-600" />
+              ) : (
+                <Shield className="h-8 w-8 text-blue-600" />
               )}
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900">
@@ -199,36 +219,45 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent>
-            {/* Login Type Toggle */}
             <div className="mb-6">
               <div className="flex items-center justify-center mb-4">
                 <div className="bg-gray-100 p-1 rounded-lg flex">
                   <button
                     onClick={() => setLoginType("student")}
-                    className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                       loginType === "student"
                         ? "bg-white text-blue-600 shadow-sm"
                         : "text-gray-600 hover:text-gray-800"
                     }`}
                   >
-                    <User className="h-4 w-4 mr-2" />
+                    <User className="h-4 w-4 mr-1" />
                     Student
                   </button>
                   <button
                     onClick={() => setLoginType("institute")}
-                    className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                       loginType === "institute"
                         ? "bg-white text-blue-600 shadow-sm"
                         : "text-gray-600 hover:text-gray-800"
                     }`}
                   >
-                    <Building2 className="h-4 w-4 mr-2" />
+                    <Building2 className="h-4 w-4 mr-1" />
                     Institute
+                  </button>
+                  <button
+                    onClick={() => setLoginType("admin")}
+                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                      loginType === "admin"
+                        ? "bg-white text-orange-600 shadow-sm"
+                        : "text-gray-600 hover:text-gray-800"
+                    }`}
+                  >
+                    <Shield className="h-4 w-4 mr-1" />
+                    Admin
                   </button>
                 </div>
               </div>
             </div>
-
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email Field */}
               <div className="space-y-2">
@@ -323,7 +352,11 @@ export default function LoginPage() {
                   </div>
                 ) : (
                   `Sign In as ${
-                    loginType === "student" ? "Student" : "Institute"
+                    loginType === "student"
+                      ? "Student"
+                      : loginType === "institute"
+                      ? "Institute"
+                      : "Admin"
                   }`
                 )}
               </Button>
@@ -351,12 +384,15 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <Button asChild variant="outline" className="h-11">
-                  <Link to="/student/register">Register as Student</Link>
+              <div className="grid grid-cols-3 gap-2">
+                <Button asChild variant="outline" className="h-11 text-xs">
+                  <Link to="/student/register">Register Student</Link>
                 </Button>
-                <Button asChild variant="outline" className="h-11">
+                <Button asChild variant="outline" className="h-11 text-xs">
                   <Link to="/institute/register">Register Institute</Link>
+                </Button>
+                <Button asChild variant="outline" className="h-11 text-xs">
+                  <Link to="/admin/register">Register Admin</Link>
                 </Button>
               </div>
             </div>
@@ -377,4 +413,6 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
+};
+
+export default LoginPage;

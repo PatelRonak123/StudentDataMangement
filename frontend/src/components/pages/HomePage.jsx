@@ -13,8 +13,10 @@ import {
   Users,
   BookOpen,
   Award,
+  Shield,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -67,7 +69,7 @@ export default function HomePage() {
         </div>
 
         {/* Main Action Cards */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           {/* Student Registration */}
           <Card className="relative overflow-hidden border-2 hover:border-blue-300 transition-all duration-300 hover:shadow-lg">
             <CardHeader className="text-center pb-4">
@@ -88,7 +90,7 @@ export default function HomePage() {
                 size="lg"
                 className="w-full bg-blue-600 hover:bg-blue-700"
               >
-                <Link to="/student/register">Student Registration</Link>
+                <Link to="/student/register">Register as Student</Link>
               </Button>
               <p className="text-sm text-gray-500 mt-3">
                 Free registration • Instant access
@@ -117,7 +119,7 @@ export default function HomePage() {
                 variant="outline"
                 className="w-full border-green-600 text-green-600 hover:bg-green-50"
               >
-                <Link to="/institute/register">Institute Registration</Link>
+                <Link to="/institute/register">Register Institute</Link>
               </Button>
               <p className="text-sm text-gray-500 mt-3">
                 Verified institutes • Professional tools
@@ -150,6 +152,35 @@ export default function HomePage() {
               </Button>
               <p className="text-sm text-gray-500 mt-3">
                 Secure access • All user types
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Admin Registration */}
+          <Card className="relative overflow-hidden border-2 hover:border-orange-300 transition-all duration-300 hover:shadow-lg">
+            <CardHeader className="text-center pb-4">
+              <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                <Shield className="h-8 w-8 text-orange-600" />
+              </div>
+              <CardTitle className="text-2xl text-gray-900">
+                Admin Registration
+              </CardTitle>
+              <CardDescription className="text-gray-600">
+                Register as an administrator to manage the platform, users, and
+                system settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="w-full border-orange-600 text-orange-600 hover:bg-orange-50"
+              >
+                <Link to="/admin/register">Admin Registration</Link>
+              </Button>
+              <p className="text-sm text-gray-500 mt-3">
+                Restricted access • System management
               </p>
             </CardContent>
           </Card>
@@ -201,7 +232,7 @@ export default function HomePage() {
 
         {/* Stats Section */}
         <section className="bg-white rounded-2xl shadow-lg p-8 mb-16">
-          <div className="grid md:grid-cols-3 gap-8 text-center">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-3xl font-bold text-blue-600 mb-2">
                 10,000+
@@ -218,12 +249,13 @@ export default function HomePage() {
               </div>
               <div className="text-gray-600">Courses Available</div>
             </div>
+            <div>
+              <div className="text-3xl font-bold text-orange-600 mb-2">25+</div>
+              <div className="text-gray-600">System Administrators</div>
+            </div>
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-     
     </div>
   );
 }

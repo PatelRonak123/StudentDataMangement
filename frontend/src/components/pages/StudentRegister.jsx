@@ -179,7 +179,10 @@ export default function StudnetRegister() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error("Please fix the errors before submitting");
+      return;
+    }
 
     try {
       const loadingToast = toast.loading("Registering...");

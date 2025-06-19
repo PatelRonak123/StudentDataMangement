@@ -1,5 +1,6 @@
 const studentModel = require("../models/studentModel");
 const instituteModel = require("../models/instituteModel");
+const adminModel = require("../models/adminModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -271,6 +272,126 @@ const instituteLogout = (req, res) => {
   });
 };
 
+const adminRegistration = async (req, res) => {
+  try {
+    const {
+      fullName,
+      age,
+      gender,
+      dateOfBirth,
+      contact,
+      password,
+      confirmPassword,
+    } = req.body;
+
+    const profileImage = req.file?.path || "";
+    const adminExists = await adminModel.findOne({
+      $or: [
+        { "contact.email": contact.email },
+        { "contact.phone": contact.phone },
+      ],
+    });
+
+    if (adminExists) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Admin already Registered",
+      });
+    }
+
+    const adminRegister = await adminModel.create({
+      fullName,
+      age,
+      gender,
+      dateOfBirth,
+      contact,
+      password,
+      confirmPassword,
+      profileImage,
+    });
+
+    return res.status(201).json({
+      status: "Success",
+      message: "Admin Registered Successfully",
+      adminRegister,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: "Failed",
+      error: err.message,
+    });
+  }
+};
+
+const adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const contact = {
+      email,
+      password,
+    };
+
+    const admin = await adminModel.findOne({ "contact.email": contact.email });
+    if (!admin) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Admin Not Found",
+      });
+    }
+    const isMatched = await bcrypt.compare(password, admin.confirmPassword);
+    if (!isMatched) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Failed to Login",
+      });
+    }
+
+    const adminToken = jwt.sign(
+      {
+        id: admin._id,
+        email: admin.contact.email,
+        role: "Admin",
+      },
+      process.env.ADMIN_SECRET,
+      {
+        expiresIn: "30d",
+      }
+    );
+
+    res.cookie("adminToken", adminToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      status: "Success",
+      message: "Admin Login Successfully",
+      admin,
+      role: "Admin",
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "Failed",
+      message: err.message,
+    });
+  }
+};
+
+const adminLogout = (req, res) => {
+  res.clearCookie("adminToken", {
+    httpOnly: true,
+    sameSite: "None",
+    secure: true,
+  });
+  return res.status(200).json({
+    status: "Success",
+    message: "Admin Logout Successfully",
+  });
+};
+
 module.exports = {
   Register,
   Login,
@@ -278,4 +399,7 @@ module.exports = {
   instituteRegistration,
   instituteLogin,
   instituteLogout,
+  adminRegistration,
+  adminLogin,
+  adminLogout,
 };

@@ -6,9 +6,13 @@ const {
   instituteRegistration,
   instituteLogin,
   instituteLogout,
+  adminRegistration,
+  adminLogin,
+  adminLogout,
 } = require("../controllers/authController");
 const upload = require("../middlewares/upload");
 const uploadInstituteLogo = require("../middlewares/instituteUpload");
+const uploadAdminProfiles = require("../middlewares/adminUpload");
 const authMiddleware = require("../middlewares/authMiddelware");
 const router = express.Router();
 
@@ -38,4 +42,12 @@ router.get(
     });
   }
 );
+router.post(
+  "/admin-register",
+  uploadAdminProfiles.single("profileImage"),
+  adminRegistration
+);
+router.post("/admin-login", adminLogin);
+router.get("/admin-logout", adminLogout);
+
 module.exports = router;
