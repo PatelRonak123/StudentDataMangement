@@ -11,7 +11,7 @@ const applicationSchema = new mongoose.Schema({
     ref: "Institute",
     required: true,
   },
-  message: {
+  msg: {
     type: String,
     trim: true,
   },
@@ -31,8 +31,8 @@ const applicationSchema = new mongoose.Schema({
   },
   documents: [
     {
-      type: String,
-      required: true,
+      url: { type: String, required: true },
+      filename: { type: String, required: true },
     },
   ],
 });

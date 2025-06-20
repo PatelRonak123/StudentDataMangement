@@ -37,5 +37,5 @@ router.post(
 router.post("/admin-login", adminLogin);
 router.get("/admin-logout", adminLogout);
 
-router.get("/verify", authMiddleware(["Student", "Admin"]), verify);
+router.get("/verify", authMiddleware(["Student"]), verify);
 module.exports = router;

@@ -17,6 +17,7 @@ import {
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import InstituteApplication from "./InstituteApplication";
 
 export default function InstituteDetails() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -24,6 +25,7 @@ export default function InstituteDetails() {
   const navigate = useNavigate();
   const [institutes, setInstitutes] = useState([]);
   const [institutesLoading, setInstitutesLoading] = useState(true);
+  const [selectedInstitute, setSelectedInstitute] = useState(null);
 
   const verifyAndFetch = async () => {
     try {
@@ -74,6 +76,19 @@ export default function InstituteDetails() {
     navigate("/login");
   };
 
+  const handleApplyClick = (institute) => {
+    setSelectedInstitute(institute);
+  };
+
+  const handleCloseForm = () => {
+    setSelectedInstitute(null);
+  };
+
+  const handleApplicationSuccess = () => {
+    setSelectedInstitute(null);
+    // Optionally refresh the institutes list or show a success message
+  };
+
   // Loading state while checking authentication
   if (authLoading) {
     return (
@@ -120,7 +135,7 @@ export default function InstituteDetails() {
               </Button>
               <Link to="/">
                 <Button variant="outline" className="w-full">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  <ArrowLeft className="w-4 w-4 mr-2" />
                   Back to Home
                 </Button>
               </Link>
@@ -226,10 +241,10 @@ export default function InstituteDetails() {
                       </div>
                       <Button
                         className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
-                        onClick={() => navigate("/student-dashboard/apply-institute")}
+                        onClick={() => handleApplyClick(institute)}
                       >
                         <Send className="w-3 h-3 mr-1" />
-                        Click here to apply
+                        Apply Now
                       </Button>
                     </div>
 
@@ -358,6 +373,15 @@ export default function InstituteDetails() {
           </Card>
         )}
       </div>
+
+      {/* Application Form Modal */}
+      {selectedInstitute && (
+        <InstituteApplication
+          institute={selectedInstitute}
+          onClose={handleCloseForm}
+          onSuccess={handleApplicationSuccess}
+        />
+      )}
     </div>
   );
 }

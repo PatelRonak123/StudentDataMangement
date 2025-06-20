@@ -401,12 +401,7 @@ const verify = async (req, res) => {
       currentUser = await studentModel
         .findById(id)
         .select("-password -confirmPassword");
-    } else if (role === "Admin") {
-      currentUser = await adminModel
-        .findById(id)
-        .select("-password -confirmPassword");
     }
-
     if (!currentUser) {
       return res.status(404).json({
         status: "Failed",

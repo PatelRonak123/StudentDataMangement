@@ -1,18 +1,20 @@
 const applicationModel = require("../models/applicationModel");
-
+const path = require("path");
 const applyToInstitute = async (req, res) => {
   try {
-    const { message, course, documents } = req.body;
-    const { InstituteId } = req.params;
+    const { msg, course } = req.body;
+    const { id } = req.params;
+    
+    const files = req.files || [];
     if (req.user.role !== "Student") {
       return res.status(403).json({
         status: "Failed",
         message: "Forbidden, You don't have permission to access this resource",
       });
     }
-
     const applicationExists = await applicationModel.findOne({
-      student: req.user._id,
+      student: req.user.id,
+      institute: id,
     });
     if (applicationExists) {
       return res.status(400).json({
@@ -21,12 +23,24 @@ const applyToInstitute = async (req, res) => {
       });
     }
 
+    const uploadedDocuments = req.files.map((file) => {
+      const ext = path.extname(file.originalname); // get file extension
+      const filename = file.originalname.endsWith(ext)
+        ? file.originalname
+        : file.originalname + ext;
+
+      return {
+        url: `${file.path}?fl_attachment=${encodeURIComponent(filename)}`,
+        filename,
+      };
+    });
+
     const addApplication = await applicationModel.create({
-      student: req.user._id, // Assuming req.user._id is the student's ID
-      institute: InstituteId,
-      message,
+      student: req.user.id, // Assuming req.user._id is the student's ID
+      institute: id,
+      msg,
       course,
-      documents,
+      documents: uploadedDocuments,
     });
 
     return res.status(201).json({

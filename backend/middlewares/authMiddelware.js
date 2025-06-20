@@ -26,7 +26,7 @@ const authMiddleware =
       }
 
       const decoded = jwt.verify(token, secret);
-
+      req.user = decoded;
       if (!allowedRoles.includes(decoded.role)) {
         return res.status(403).json({
           status: "Failed",
@@ -35,7 +35,6 @@ const authMiddleware =
         });
       }
 
-      req.user = decoded;
       next();
     } catch (err) {
       return res.status(500).json({
