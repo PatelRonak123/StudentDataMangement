@@ -50,6 +50,7 @@ export default function AdminRegistration() {
     password: "",
     confirmPassword: "",
     profileImage: null,
+    adminCode:"",
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -186,7 +187,7 @@ export default function AdminRegistration() {
       formDataToSend.append("contact[phone]", formData.contact.phone);
       formDataToSend.append("password", formData.password);
       formDataToSend.append("confirmPassword", formData.confirmPassword);
-
+      formDataToSend.append("adminCode",formData.adminCode)
       if (formData.profileImage) {
         formDataToSend.append("profileImage", formData.profileImage);
       }
@@ -229,7 +230,7 @@ export default function AdminRegistration() {
     setIsLoading(false);
   };
 
-  return (
+return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-100 py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
@@ -241,14 +242,10 @@ export default function AdminRegistration() {
             Admin Registration
           </h1>
           <p className="text-base text-gray-600 max-w-2xl mx-auto mb-4">
-            Register as a system administrator to manage the platform, oversee
-            users, and maintain system operations. Admin accounts require
-            approval.
+            Register as a system administrator to manage the platform, oversee users, and maintain system operations.
+            Admin accounts require approval.
           </p>
-          <Badge
-            variant="secondary"
-            className="bg-orange-100 text-orange-700 px-3 py-1 text-sm"
-          >
+          <Badge variant="secondary" className="bg-orange-100 text-orange-700 px-3 py-1 text-sm">
             <CheckCircle className="w-3 h-3 mr-1" />
             Secure & Restricted Access
           </Badge>
@@ -259,11 +256,7 @@ export default function AdminRegistration() {
           <div className="bg-gradient-to-r from-orange-600 to-amber-600 h-1"></div>
 
           <CardContent className="p-6 lg:p-8">
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-8"
-              encType="multipart/form-data"
-            >
+            <form onSubmit={handleSubmit} className="space-y-8" encType="multipart/form-data">
               {/* Profile Section */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                 <div className="lg:col-span-1 text-center lg:text-left">
@@ -271,19 +264,14 @@ export default function AdminRegistration() {
                     <User className="w-5 h-5 text-orange-600" />
                     Profile Information
                   </h2>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Upload your profile picture and basic information
-                  </p>
+                  <p className="text-sm text-gray-600 mb-4">Upload your profile picture and basic information</p>
 
                   <div className="flex flex-col items-center space-y-3">
                     <div className="relative group">
                       <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-100 to-amber-100 border-3 border-white shadow-lg flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:shadow-xl">
                         {formData.profileImage ? (
                           <img
-                            src={
-                              URL.createObjectURL(formData.profileImage) ||
-                              "/placeholder.svg"
-                            }
+                            src={URL.createObjectURL(formData.profileImage) || "/placeholder.svg" || "/placeholder.svg"}
                             alt="Profile preview"
                             className="w-full h-full object-cover"
                           />
@@ -297,10 +285,7 @@ export default function AdminRegistration() {
                     </div>
 
                     <div className="w-full max-w-sm">
-                      <Label
-                        htmlFor="profileImage"
-                        className="text-xs font-medium text-gray-700 mb-1 block"
-                      >
+                      <Label htmlFor="profileImage" className="text-xs font-medium text-gray-700 mb-1 block">
                         Profile Picture (Optional)
                       </Label>
                       <Input
@@ -317,9 +302,7 @@ export default function AdminRegistration() {
                           {errors.profileImage}
                         </p>
                       )}
-                      <p className="text-xs text-gray-500 mt-1">
-                        Max file size: 5MB
-                      </p>
+                      <p className="text-xs text-gray-500 mt-1">Max file size: 5MB</p>
                     </div>
                   </div>
                 </div>
@@ -327,10 +310,7 @@ export default function AdminRegistration() {
                 <div className="lg:col-span-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <Label
-                        htmlFor="fullName"
-                        className="text-xs font-medium text-gray-700"
-                      >
+                      <Label htmlFor="fullName" className="text-xs font-medium text-gray-700">
                         Full Name *
                       </Label>
                       <div className="relative">
@@ -341,13 +321,9 @@ export default function AdminRegistration() {
                           name="fullName"
                           placeholder="Enter your full name"
                           value={formData.fullName}
-                          onChange={(e) =>
-                            handleChange("fullName", e.target.value)
-                          }
+                          onChange={(e) => handleChange("fullName", e.target.value)}
                           className={`pl-9 h-10 text-sm ${
-                            errors.fullName
-                              ? "border-red-500 focus:border-red-500"
-                              : "focus:border-orange-500"
+                            errors.fullName ? "border-red-500 focus:border-red-500" : "focus:border-orange-500"
                           }`}
                         />
                       </div>
@@ -360,10 +336,7 @@ export default function AdminRegistration() {
                     </div>
 
                     <div className="space-y-1">
-                      <Label
-                        htmlFor="age"
-                        className="text-xs font-medium text-gray-700"
-                      >
+                      <Label htmlFor="age" className="text-xs font-medium text-gray-700">
                         Age *
                       </Label>
                       <Input
@@ -375,9 +348,7 @@ export default function AdminRegistration() {
                         onChange={(e) => handleChange("age", e.target.value)}
                         min="18"
                         className={`h-10 text-sm ${
-                          errors.age
-                            ? "border-red-500 focus:border-red-500"
-                            : "focus:border-orange-500"
+                          errors.age ? "border-red-500 focus:border-red-500" : "focus:border-orange-500"
                         }`}
                       />
                       {errors.age && (
@@ -389,17 +360,9 @@ export default function AdminRegistration() {
                     </div>
 
                     <div className="space-y-1">
-                      <Label className="text-xs font-medium text-gray-700">
-                        Gender *
-                      </Label>
-                      <Select
-                        onValueChange={(value) => handleChange("gender", value)}
-                      >
-                        <SelectTrigger
-                          className={`h-10 text-sm ${
-                            errors.gender ? "border-red-500" : ""
-                          }`}
-                        >
+                      <Label className="text-xs font-medium text-gray-700">Gender *</Label>
+                      <Select onValueChange={(value) => handleChange("gender", value)}>
+                        <SelectTrigger className={`h-10 text-sm ${errors.gender ? "border-red-500" : ""}`}>
                           <SelectValue placeholder="Select your gender" />
                         </SelectTrigger>
                         <SelectContent>
@@ -417,9 +380,7 @@ export default function AdminRegistration() {
                     </div>
 
                     <div className="space-y-1">
-                      <Label className="text-xs font-medium text-gray-700">
-                        Date of Birth *
-                      </Label>
+                      <Label className="text-xs font-medium text-gray-700">Date of Birth *</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
@@ -432,9 +393,7 @@ export default function AdminRegistration() {
                             {formData.dateOfBirth ? (
                               format(formData.dateOfBirth, "PPP")
                             ) : (
-                              <span className="text-gray-500">
-                                Select your birth date
-                              </span>
+                              <span className="text-gray-500">Select your birth date</span>
                             )}
                           </Button>
                         </PopoverTrigger>
@@ -442,12 +401,8 @@ export default function AdminRegistration() {
                           <Calendar
                             mode="single"
                             selected={formData.dateOfBirth}
-                            onSelect={(date) =>
-                              handleChange("dateOfBirth", date)
-                            }
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
+                            onSelect={(date) => handleChange("dateOfBirth", date)}
+                            disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                             initialFocus
                           />
                         </PopoverContent>
@@ -474,10 +429,7 @@ export default function AdminRegistration() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <Label
-                      htmlFor="phone"
-                      className="text-xs font-medium text-gray-700"
-                    >
+                    <Label htmlFor="phone" className="text-xs font-medium text-gray-700">
                       Phone Number *
                     </Label>
                     <div className="relative">
@@ -488,13 +440,9 @@ export default function AdminRegistration() {
                         name="phone"
                         placeholder="Enter 10-digit phone number"
                         value={formData.contact.phone}
-                        onChange={(e) =>
-                          handleChange("contact.phone", e.target.value)
-                        }
+                        onChange={(e) => handleChange("contact.phone", e.target.value)}
                         className={`pl-9 h-10 text-sm ${
-                          errors["contact.phone"]
-                            ? "border-red-500 focus:border-red-500"
-                            : "focus:border-orange-500"
+                          errors["contact.phone"] ? "border-red-500 focus:border-red-500" : "focus:border-orange-500"
                         }`}
                       />
                     </div>
@@ -507,10 +455,7 @@ export default function AdminRegistration() {
                   </div>
 
                   <div className="space-y-1">
-                    <Label
-                      htmlFor="email"
-                      className="text-xs font-medium text-gray-700"
-                    >
+                    <Label htmlFor="email" className="text-xs font-medium text-gray-700">
                       Email Address *
                     </Label>
                     <div className="relative">
@@ -521,13 +466,9 @@ export default function AdminRegistration() {
                         name="email"
                         placeholder="Enter your email address"
                         value={formData.contact.email}
-                        onChange={(e) =>
-                          handleChange("contact.email", e.target.value)
-                        }
+                        onChange={(e) => handleChange("contact.email", e.target.value)}
                         className={`pl-9 h-10 text-sm ${
-                          errors["contact.email"]
-                            ? "border-red-500 focus:border-red-500"
-                            : "focus:border-orange-500"
+                          errors["contact.email"] ? "border-red-500 focus:border-red-500" : "focus:border-orange-500"
                         }`}
                       />
                     </div>
@@ -550,12 +491,9 @@ export default function AdminRegistration() {
                   Account Security
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div className="space-y-1">
-                    <Label
-                      htmlFor="password"
-                      className="text-xs font-medium text-gray-700"
-                    >
+                    <Label htmlFor="password" className="text-xs font-medium text-gray-700">
                       Password *
                     </Label>
                     <div className="relative">
@@ -566,13 +504,9 @@ export default function AdminRegistration() {
                         type={showPassword ? "text" : "password"}
                         placeholder="Create a secure password"
                         value={formData.password}
-                        onChange={(e) =>
-                          handleChange("password", e.target.value)
-                        }
+                        onChange={(e) => handleChange("password", e.target.value)}
                         className={`pl-9 pr-9 h-10 text-sm ${
-                          errors.password
-                            ? "border-red-500 focus:border-red-500"
-                            : "focus:border-orange-500"
+                          errors.password ? "border-red-500 focus:border-red-500" : "focus:border-orange-500"
                         }`}
                       />
                       <button
@@ -580,11 +514,7 @@ export default function AdminRegistration() {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
                       >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                     {errors.password && (
@@ -593,16 +523,11 @@ export default function AdminRegistration() {
                         {errors.password}
                       </p>
                     )}
-                    <p className="text-xs text-gray-500">
-                      8-20 characters required (stronger for admin)
-                    </p>
+                    <p className="text-xs text-gray-500">8-20 characters required (stronger for admin)</p>
                   </div>
 
                   <div className="space-y-1">
-                    <Label
-                      htmlFor="confirmPassword"
-                      className="text-xs font-medium text-gray-700"
-                    >
+                    <Label htmlFor="confirmPassword" className="text-xs font-medium text-gray-700">
                       Confirm Password *
                     </Label>
                     <div className="relative">
@@ -613,27 +538,17 @@ export default function AdminRegistration() {
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="Confirm your password"
                         value={formData.confirmPassword}
-                        onChange={(e) =>
-                          handleChange("confirmPassword", e.target.value)
-                        }
+                        onChange={(e) => handleChange("confirmPassword", e.target.value)}
                         className={`pl-9 pr-9 h-10 text-sm ${
-                          errors.confirmPassword
-                            ? "border-red-500 focus:border-red-500"
-                            : "focus:border-orange-500"
+                          errors.confirmPassword ? "border-red-500 focus:border-red-500" : "focus:border-orange-500"
                         }`}
                       />
                       <button
                         type="button"
-                        onClick={() =>
-                          setShowConfirmPassword(!showConfirmPassword)
-                        }
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
                       >
-                        {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                     {errors.confirmPassword && (
@@ -642,6 +557,33 @@ export default function AdminRegistration() {
                         {errors.confirmPassword}
                       </p>
                     )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label htmlFor="adminCode" className="text-xs font-medium text-gray-700">
+                      Admin Code *
+                    </Label>
+                    <div className="relative">
+                      <Shield className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="adminCode"
+                        name="adminCode"
+                        type="text"
+                        placeholder="Enter admin authorization code"
+                        value={formData.adminCode}
+                        onChange={(e) => handleChange("adminCode", e.target.value)}
+                        className={`pl-9 h-10 text-sm ${
+                          errors.adminCode ? "border-red-500 focus:border-red-500" : "focus:border-orange-500"
+                        }`}
+                      />
+                    </div>
+                    {errors.adminCode && (
+                      <p className="text-red-500 text-xs flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.adminCode}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-500">Required authorization code for admin access</p>
                   </div>
                 </div>
               </div>
@@ -687,10 +629,7 @@ export default function AdminRegistration() {
                   </p>
                   <p className="text-xs text-gray-500">
                     Already have an account?{" "}
-                    <Link
-                      href="/login"
-                      className="text-orange-600 hover:text-orange-700 font-medium"
-                    >
+                    <Link href="/login" className="text-orange-600 hover:text-orange-700 font-medium">
                       Sign in here
                     </Link>
                   </p>
@@ -702,12 +641,9 @@ export default function AdminRegistration() {
 
         {/* Footer */}
         <div className="text-center text-xs text-gray-500 mt-6">
-          <p>
-            © 2024 EduConnect Admin Portal. All rights reserved. | Need help?
-            Contact admin@educonnect.com
-          </p>
+          <p>© 2024 EduConnect Admin Portal. All rights reserved. | Need help? Contact admin@educonnect.com</p>
         </div>
       </div>
     </div>
-  );
+  )
 }

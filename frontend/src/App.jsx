@@ -15,6 +15,7 @@ import AdminRegistration from "./components/pages/AdminRegistration";
 import LoginPage from "./components/pages/LoginPage";
 import InstituteDetails from "./components/pages/InstituteDetails";
 import InstituteApplication from "./components/pages/InstituteApplication";
+import AdminDashboard from "./components/pages/AdminDashboard";
 
 const App = () => {
   return (
@@ -43,6 +44,7 @@ const MainApp = () => {
           element={<InstituteApplication />}
         />
         <Route path="/institute-dashboard" element={<InstituteDashboard />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
       </Routes>
       {showFooter && <Footer />}
     </>

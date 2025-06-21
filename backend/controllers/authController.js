@@ -283,9 +283,17 @@ const adminRegistration = async (req, res) => {
       contact,
       password,
       confirmPassword,
+      adminCode,
     } = req.body;
 
     const profileImage = req.file?.path || "";
+
+    if (adminCode !== process.env.VALID_ADMIN_CODE) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Invalid Admin Code",
+      });
+    }
     const adminExists = await adminModel.findOne({
       $or: [
         { "contact.email": contact.email },
@@ -309,6 +317,7 @@ const adminRegistration = async (req, res) => {
       password,
       confirmPassword,
       profileImage,
+      role: "Admin",
     });
 
     return res.status(201).json({
@@ -359,10 +368,14 @@ const adminLogin = async (req, res) => {
       }
     );
 
+    // res.clearCookie("token");
+    // res.clearCookie("instituteToken");
+
     res.cookie("adminToken", adminToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
