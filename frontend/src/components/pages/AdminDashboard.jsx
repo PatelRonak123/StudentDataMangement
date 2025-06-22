@@ -317,7 +317,7 @@ export default function AdminDashboard() {
                               variant="outline"
                               className="text-gray-600 text-xs"
                             >
-                              ID: {student.studentId || student._id}
+                              ID: {student.student?._id}
                             </Badge>
                           </div>
                           <p className="text-sm text-gray-600">
