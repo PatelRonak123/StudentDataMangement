@@ -15,13 +15,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://educonnect-flax.vercel.app",
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   })
 );
+app.options("*", cors());
 
 app.get("/", (req, res) => {
-  res.send("Server is working Fine"); 
+  res.send("Server is working Fine");
 });
 
 app.use("/api/v1", authRoute);
