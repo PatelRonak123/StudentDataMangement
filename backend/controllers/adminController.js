@@ -30,7 +30,7 @@ const fetchStudentApplication = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "fullName age profileImage dateOfBirth gender contact address enrolledDate",
+          "_id fullName age profileImage dateOfBirth gender contact address enrolledDate",
       })
       .populate({
         path: "institute",
