@@ -39,14 +39,16 @@ export default function AdminDashboard() {
       setAuthLoading(true);
 
       const verifyAdmin = await axios.get(
-        "/api/v1/verify-admin",
+        `${import.meta.env.VITE_API_BASE_URL}/api/v1/verify-admin`,
         { withCredentials: true }
       );
       if (verifyAdmin.status === 200) {
         setIsAuthenticated(true);
 
         const fetchStudentApplication = await axios.get(
-          "/api/v1/fetch-studentApplication",
+          `${
+            import.meta.env.VITE_API_BASE_URL
+          }/api/v1/fetch-studentApplication`,
           { withCredentials: true }
         );
 
@@ -88,11 +90,11 @@ export default function AdminDashboard() {
     const loadingToast = toast.loading("Logging out...");
     try {
       const response = await axios.post(
-        "/api/v1/admin-logout",
+        `${import.meta.env.VITE_API_BASE_URL}/api/v1/admin-logout`,
         {},
         { withCredentials: true }
       );
-      
+
       if (response.status === 200) {
         setIsAuthenticated(false);
         toast.success("Logged out successfully", { id: loadingToast });
@@ -112,7 +114,9 @@ export default function AdminDashboard() {
     try {
       const loadingToast = toast.loading("Approving student...");
       const response = await axios.patch(
-        `/api/v1/approveStudent/${studentId}`,
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }/api/v1/approveStudent/${studentId}`,
         { status: "Accepted" }
       );
 
@@ -132,7 +136,9 @@ export default function AdminDashboard() {
     const loadingToast = toast.loading("Rejecting student...");
     try {
       const response = await axios.patch(
-        `/api/v1/rejectstudents/${studentId}`,
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }/api/v1/rejectstudents/${studentId}`,
         { status: "Rejected" },
         {
           withCredentials: true,
@@ -222,7 +228,7 @@ export default function AdminDashboard() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Admin Panel
             </Link>
-            
+
             <Button
               onClick={handleLogout}
               variant="outline"
@@ -311,7 +317,7 @@ export default function AdminDashboard() {
                               variant="outline"
                               className="text-gray-600 text-xs"
                             >
-                              ID: {student.studentId || student.id}
+                              ID: {student.studentId || student._id}
                             </Badge>
                           </div>
                           <p className="text-sm text-gray-600">
