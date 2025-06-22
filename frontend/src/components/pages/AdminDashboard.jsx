@@ -39,14 +39,14 @@ export default function AdminDashboard() {
       setAuthLoading(true);
 
       const verifyAdmin = await axios.get(
-        "http://localhost:3000/api/v1/verify-admin",
+        "/api/v1/verify-admin",
         { withCredentials: true }
       );
       if (verifyAdmin.status === 200) {
         setIsAuthenticated(true);
 
         const fetchStudentApplication = await axios.get(
-          "http://localhost:3000/api/v1/fetch-studentApplication",
+          "/api/v1/fetch-studentApplication",
           { withCredentials: true }
         );
 
@@ -88,7 +88,7 @@ export default function AdminDashboard() {
     const loadingToast = toast.loading("Logging out...");
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/v1/admin-logout",
+        "/api/v1/admin-logout",
         {},
         { withCredentials: true }
       );
@@ -112,7 +112,7 @@ export default function AdminDashboard() {
     try {
       const loadingToast = toast.loading("Approving student...");
       const response = await axios.patch(
-        `http://localhost:3000/api/v1/approveStudent/${studentId}`,
+        `/api/v1/approveStudent/${studentId}`,
         { status: "Accepted" }
       );
 
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
     const loadingToast = toast.loading("Rejecting student...");
     try {
       const response = await axios.patch(
-        `http://localhost:3000/api/v1/rejectstudents/${studentId}`,
+        `/api/v1/rejectstudents/${studentId}`,
         { status: "Rejected" },
         {
           withCredentials: true,

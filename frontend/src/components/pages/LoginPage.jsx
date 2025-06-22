@@ -139,11 +139,11 @@ const LoginPage = () => {
     let apiEndpoint;
 
     if (loginType === "student") {
-      apiEndpoint = "http://localhost:3000/api/v1/student-login";
+      apiEndpoint = "/api/v1/student-login";
     } else if (loginType === "institute") {
-      apiEndpoint = "http://localhost:3000/api/v1/institute-login";
+      apiEndpoint = "/api/v1/institute-login";
     } else {
-      apiEndpoint = "http://localhost:3000/api/v1/admin-login";
+      apiEndpoint = "/api/v1/admin-login";
     }
 
     try {

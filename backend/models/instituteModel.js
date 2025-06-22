@@ -39,7 +39,7 @@ const institueSchema = new mongoose.Schema({
     type: String,
     unique: true,
     trim: true,
-    minlength: [5, "Registration number must be at least 5 characters"],
+    minlength: [0, "Registration number must be at least 5 characters"],
     maxlength: [15, "Registration number must be at most 15 characters"],
   },
   contact: {

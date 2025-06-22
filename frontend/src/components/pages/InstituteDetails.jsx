@@ -34,7 +34,7 @@ export default function InstituteDetails() {
       setAuthLoading(true);
 
       // Step 1: Verify login
-      const verify = await axios.get("http://localhost:3000/api/v1/verify", {
+      const verify = await axios.get("/api/v1/verify", {
         withCredentials: true,
       });
 
@@ -43,7 +43,7 @@ export default function InstituteDetails() {
 
         // Step 2: Fetch institute details
         const response = await axios.get(
-          "http://localhost:3000/api/v1/institute-details",
+          "/api/v1/institute-details",
           {
             withCredentials: true,
           }
@@ -76,7 +76,7 @@ export default function InstituteDetails() {
       setLogoutLoading(true);
 
       const response = await axios.post(
-        "http://localhost:3000/api/v1/student-logout",
+        "/api/v1/student-logout",
         {},
         {
           withCredentials: true,

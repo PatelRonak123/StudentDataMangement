@@ -39,7 +39,7 @@ export default function InstituteDashboard() {
       setAuthLoading(true);
 
       const verifyInstitute = await axios.get(
-        "http://localhost:3000/api/v1/verifyInstiute",
+        "/api/v1/verifyInstiute",
         {
           withCredentials: true,
         }
@@ -50,7 +50,7 @@ export default function InstituteDashboard() {
         setInstituteInfo(verifyInstitute.data.currentInstitute);
 
         const fetchAcceptedStudents = await axios.get(
-          "http://localhost:3000/api/v1/fetchInstitutewithStatus",
+          "/api/v1/fetchInstitutewithStatus",
           {
             withCredentials: true,
           }
@@ -90,7 +90,7 @@ export default function InstituteDashboard() {
       setLogoutLoading(true);
 
       const response = await axios.post(
-        "http://localhost:3000/api/v1/institute-logout",
+        "/api/v1/institute-logout",
         {},
         {
           withCredentials: true,

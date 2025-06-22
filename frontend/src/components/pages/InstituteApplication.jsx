@@ -135,7 +135,7 @@ export default function InstituteApplication({
 
       const id = institute._id;
       const respose = await axios.post(
-        `http://localhost:3000/api/v1/apply/${id}`,
+        `/api/v1/apply/${id}`,
         submitFormData,
         {
           withCredentials: true,

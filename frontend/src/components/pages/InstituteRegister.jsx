@@ -233,7 +233,7 @@ export default function InstituteRegister() {
       }
       // Handle form submission here
       const response = await axios.post(
-        "http://localhost:3000/api/v1/institute-register",
+        "/api/v1/institute-register",
         formDataToSend,
         {
           withCredentials: true,
@@ -501,6 +501,9 @@ export default function InstituteRegister() {
                               date > new Date() || date < new Date("1800-01-01")
                             }
                             initialFocus
+                            captionLayout="dropdown"
+                            fromYear={1900}
+                            toYear={new Date().getFullYear()}
                           />
                         </PopoverContent>
                       </Popover>
