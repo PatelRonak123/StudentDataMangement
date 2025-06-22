@@ -9,7 +9,6 @@ const {
   adminRegistration,
   adminLogin,
   adminLogout,
-  verify,
 } = require("../controllers/authController");
 const upload = require("../middlewares/upload");
 const uploadInstituteLogo = require("../middlewares/instituteUpload");
@@ -19,7 +18,7 @@ const router = express.Router();
 
 router.post("/student-register", upload.single("profileImage"), Register);
 router.post("/student-login", Login);
-router.get("/student-logout", Logout);
+router.post("/student-logout", Logout);
 
 router.post(
   "/institute-register",
@@ -27,7 +26,7 @@ router.post(
   instituteRegistration
 );
 router.post("/institute-login", instituteLogin);
-router.get("/institute-logout", instituteLogout);
+router.post("/institute-logout", instituteLogout);
 
 router.post(
   "/admin-register",
@@ -35,7 +34,7 @@ router.post(
   adminRegistration
 );
 router.post("/admin-login", adminLogin);
-router.get("/admin-logout", adminLogout);
+router.post("/admin-logout", adminLogout);
 
-router.get("/verify", authMiddleware(["Student"]), verify);
+
 module.exports = router;

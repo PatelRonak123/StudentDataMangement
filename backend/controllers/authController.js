@@ -97,6 +97,9 @@ const Login = async (req, res) => {
       }
     );
 
+    res.clearCookie("instituteToken");
+    res.clearCookie("adminToken");
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: true, // make false for local dev if needed
@@ -148,9 +151,21 @@ const instituteRegistration = async (req, res) => {
 
     const instituteLogo = req.file?.path || "";
 
-    if (instituteCode !== process.env.VALID_INSTITUTE_CODE) {
+    if (!instituteCode) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Institute code is required",
+      });
+    }
+
+    // ✅ Handle multiple valid codes
+    const validCodes = process.env.VALID_INSTITUTE_CODES.split(",").map(
+      (code) => code.trim()
+    );
+
+    if (!validCodes.includes(instituteCode)) {
       return res.status(401).json({
-        status: "Faild",
+        status: "Failed",
         message: "Invalid Institute Code",
       });
     }
@@ -180,15 +195,15 @@ const instituteRegistration = async (req, res) => {
       registrationNumber,
       contact,
       password,
+      confirmPassword,
       instituteCode,
       role: "Institute",
-      confirmPassword,
       instituteLogo,
     });
 
     return res.status(201).json({
       status: "Success",
-      message: "Instiute Registered Successfully",
+      message: "Institute Registered Successfully",
       instituteRegister,
     });
   } catch (err) {
@@ -237,6 +252,9 @@ const instituteLogin = async (req, res) => {
         expiresIn: "30d",
       }
     );
+
+    res.clearCookie("token");
+    res.clearCookie("adminToken");
 
     res.cookie("instituteToken", instituteToken, {
       httpOnly: true,
@@ -288,12 +306,24 @@ const adminRegistration = async (req, res) => {
 
     const profileImage = req.file?.path || "";
 
-    if (adminCode !== process.env.VALID_ADMIN_CODE) {
-      return res.status(401).json({
+    if (!adminCode) {
+      return res.status(400).json({
         status: "Failed",
-        message: "Invalid Admin Code",
+        message: "Admin code is required",
       });
     }
+
+    const validCodes = process.env.VALID_ADMIN_CODE.split(",").map((code) =>
+      code.trim()
+    );
+
+    if (!validCodes.includes(adminCode)) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "Invalid admin Code",
+      });
+    }
+
     const adminExists = await adminModel.findOne({
       $or: [
         { "contact.email": contact.email },
@@ -368,14 +398,13 @@ const adminLogin = async (req, res) => {
       }
     );
 
-    // res.clearCookie("token");
-    // res.clearCookie("instituteToken");
+    res.clearCookie("token");
+    res.clearCookie("instituteToken");
 
     res.cookie("adminToken", adminToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-
+      secure: true, // make false for local dev if needed
+      sameSite: "None", // or "Lax" for local
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -406,34 +435,6 @@ const adminLogout = (req, res) => {
   });
 };
 
-const verify = async (req, res) => {
-  try {
-    const { id, role } = req.user;
-    let currentUser;
-    if (role === "Student") {
-      currentUser = await studentModel
-        .findById(id)
-        .select("-password -confirmPassword");
-    }
-    if (!currentUser) {
-      return res.status(404).json({
-        status: "Failed",
-        message: "User Not Found",
-      });
-    }
-
-    return res.status(200).json({
-      status: "Success",
-      message: "User Found Successfully",
-      currentUser,
-    });
-  } catch (err) {
-    return res.status(500).json({
-      status: "Failed",
-      error: err.message,
-    });
-  }
-};
 module.exports = {
   Register,
   Login,
@@ -444,5 +445,4 @@ module.exports = {
   adminRegistration,
   adminLogin,
   adminLogout,
-  verify,
 };

@@ -34,7 +34,6 @@ const authMiddleware =
             "Forbidden, You don't have permission to access this resource",
         });
       }
-
       next();
     } catch (err) {
       return res.status(500).json({

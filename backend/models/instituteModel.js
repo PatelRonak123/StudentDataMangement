@@ -31,14 +31,12 @@ const institueSchema = new mongoose.Schema({
   },
   department: {
     type: String,
-    required: true,
     trim: true,
     minlength: [3, "Department name must be at least 3 characters"],
     maxlength: [50, "Department name must be at most 30 characters"],
   },
   registrationNumber: {
     type: String,
-    required: true,
     unique: true,
     trim: true,
     minlength: [5, "Registration number must be at least 5 characters"],

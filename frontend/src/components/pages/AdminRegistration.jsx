@@ -219,6 +219,7 @@ export default function AdminRegistration() {
           password: "",
           confirmPassword: "",
           profileImage: null,
+          adminCode: ""
         });
       }
     } catch (err) {

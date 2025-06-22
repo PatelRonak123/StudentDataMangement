@@ -12,6 +12,7 @@ import {
   GraduationCap,
   ArrowLeft,
   LogIn,
+  LogOut,
   Loader2,
   Clock,
   Mail,
@@ -81,6 +82,30 @@ export default function AdminDashboard() {
 
   const handleLoginRedirect = () => {
     navigate("/login");
+  };
+
+  const handleLogout = async () => {
+    const loadingToast = toast.loading("Logging out...");
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/v1/admin-logout",
+        {},
+        { withCredentials: true }
+      );
+      
+      if (response.status === 200) {
+        setIsAuthenticated(false);
+        toast.success("Logged out successfully", { id: loadingToast });
+        navigate("/login");
+      } else {
+        toast.error("Failed to logout", { id: loadingToast });
+      }
+    } catch (err) {
+      console.error("Error logging out:", err);
+      setIsAuthenticated(false);
+      toast.success("Logged out successfully", { id: loadingToast });
+      navigate("/login");
+    }
   };
 
   const handleApproveStudent = async (studentId) => {
@@ -189,13 +214,24 @@ export default function AdminDashboard() {
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <div className="mb-8">
-          <Link
-            to="/admin"
-            className="inline-flex items-center text-slate-600 hover:text-slate-700 mb-6 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Admin Panel
-          </Link>
+          <div className="flex items-center justify-between mb-6">
+            <Link
+              to="/"
+              className="inline-flex items-center text-slate-600 hover:text-slate-700 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Admin Panel
+            </Link>
+            
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="flex items-center gap-2 text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-700 transition-colors duration-300"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </Button>
+          </div>
 
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-slate-600 to-gray-600 rounded-full shadow-lg mb-4">

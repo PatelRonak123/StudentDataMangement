@@ -12,16 +12,18 @@ import {
   GraduationCap,
   ArrowLeft,
   LogIn,
+  LogOut,
   Loader2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import InstituteApplication from "./InstituteApplication";
-
+import toast from "react-hot-toast";
 export default function InstituteDetails() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const navigate = useNavigate();
   const [institutes, setInstitutes] = useState([]);
   const [institutesLoading, setInstitutesLoading] = useState(true);
@@ -68,6 +70,34 @@ export default function InstituteDetails() {
     }
   };
 
+  const handleLogout = async () => {
+    const logoutToast = toast.loading("Logging out...");
+    try {
+      setLogoutLoading(true);
+
+      const response = await axios.post(
+        "http://localhost:3000/api/v1/student-logout",
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 200) {
+        setIsAuthenticated(false);
+        toast.success("Logged out successfully", { id: logoutToast });
+        navigate("/login");
+      }
+    } catch (err) {
+      console.error("Error during logout:", err.message);
+      setIsAuthenticated(false);
+      toast.success("Logged out successfully", { id: logoutToast });
+      navigate("/login");
+    } finally {
+      setLogoutLoading(false);
+    }
+  };
+
   useEffect(() => {
     verifyAndFetch();
   }, []);
@@ -109,7 +139,7 @@ export default function InstituteDetails() {
   }
 
   // Not authenticated - show login prompt
-  if (!isAuthenticated) {
+  if (!authLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex items-center justify-center px-4">
         <Card className="w-full max-w-md shadow-xl border-0 bg-white/90 backdrop-blur-md">
@@ -151,13 +181,34 @@ export default function InstituteDetails() {
       <div className="max-w-4xl mx-auto">
         {/* Header Section */}
         <div className="mb-8">
-          <Link
-            to="/"
-            className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Link>
+          <div className="flex items-center justify-between mb-6">
+            <Link
+              to="/"
+              className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Link>
+
+            <Button
+              onClick={handleLogout}
+              disabled={logoutLoading}
+              variant="outline"
+              className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 hover:text-red-700 transition-colors"
+            >
+              {logoutLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Logging out...
+                </>
+              ) : (
+                <>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </>
+              )}
+            </Button>
+          </div>
 
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full shadow-lg mb-4">

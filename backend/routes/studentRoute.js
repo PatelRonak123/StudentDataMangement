@@ -1,9 +1,13 @@
 const express = require("express");
 const authMiddleware = require("../middlewares/authMiddelware");
-const { applyToInstitute } = require("../controllers/studentController");
+const {
+  applyToInstitute,
+  verify,
+} = require("../controllers/studentController");
 const uploadDocuments = require("../middlewares/documentsUpload");
 const router = express.Router();
 
+router.get("/verify", authMiddleware(["Student"]), verify);
 router.post(
   "/apply/:id",
   authMiddleware(["Student"]),

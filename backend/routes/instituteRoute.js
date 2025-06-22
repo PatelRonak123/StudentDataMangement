@@ -1,6 +1,17 @@
 const express = require("express");
-const instituteData = require("../controllers/instituteController");
+const {
+  instituteData,
+  verifyInstitute,
+  fetchInstitutewithAcceptedStatus,
+} = require("../controllers/instituteController");
 const router = express.Router();
 const authMiddelware = require("../middlewares/authMiddelware");
-router.get("/institute-details", authMiddelware(["Student","Institute","Admin"]), instituteData);
+
+router.get("/verifyInstiute", authMiddelware(["Institute"]), verifyInstitute);
+router.get("/institute-details", instituteData);
+router.get(
+  "/fetchInstitutewithStatus",
+  authMiddelware(["Institute"]),
+  fetchInstitutewithAcceptedStatus
+);
 module.exports = router;

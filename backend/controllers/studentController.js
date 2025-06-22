@@ -1,10 +1,41 @@
 const applicationModel = require("../models/applicationModel");
+const studentModel = require("../models/studentModel");
 const path = require("path");
+
+const verify = async (req, res) => {
+  try {
+    const { id, role } = req.user;
+    let currentUser;
+    if (role === "Student") {
+      currentUser = await studentModel
+        .findById(id)
+        .select("-password -confirmPassword");
+    }
+    if (!currentUser) {
+      return res.status(401).json({
+        status: "Failed",
+        message: "User Not Found",
+      });
+    }
+
+    return res.status(200).json({
+      status: "Success",
+      message: "User Found Successfully",
+      currentUser,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: "Failed",
+      error: err.message,
+    });
+  }
+};
+
 const applyToInstitute = async (req, res) => {
   try {
     const { msg, course } = req.body;
     const { id } = req.params;
-    
+
     const files = req.files || [];
     if (req.user.role !== "Student") {
       return res.status(403).json({
@@ -56,4 +87,4 @@ const applyToInstitute = async (req, res) => {
   }
 };
 
-module.exports = { applyToInstitute };
+module.exports = { verify, applyToInstitute };
